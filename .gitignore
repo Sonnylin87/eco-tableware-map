@@ -1,0 +1,13 @@
+# 截圖（這個資料夾平常也拿來跟 Claude 分享截圖用，不用進版本控制）
+螢幕擷取畫面*.png
+*.png
+*.jpg
+*.jpeg
+
+# OS / 編輯器雜項
+.DS_Store
+Thumbs.db
+
+# 這個資料夾本身的個人使用情境，跟網站專案無關，不進版本控制
+CLAUDE.md
+.claude/

@@ -1,0 +1,219 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif;
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---- 頂部工具列 ---- */
+.toolbar {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: #fff;
+  padding: 10px 16px;
+  border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbar h1 {
+  font-size: 15px;
+  margin: 0;
+  font-weight: 600;
+  color: #222;
+  white-space: nowrap;
+}
+
+#add-restaurant-btn {
+  white-space: nowrap;
+}
+
+/* ---- 按鈕 ---- */
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #1a7f37;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  background: #156a2e;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #f2f2f2;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.btn-secondary:hover {
+  background: #e6e6e6;
+}
+
+#add-restaurant-btn.active {
+  background: #1a7f37;
+  color: #fff;
+  border-color: #1a7f37;
+}
+
+/* ---- 地圖標記 ---- */
+.marker-dot {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.marker-green { background: #1a7f37; }
+.marker-red { background: #cf222e; }
+.marker-yellow { background: #d4a72c; }
+.marker-gray { background: #8c8c8c; }
+
+/* ---- Leaflet popup 內容 ---- */
+.popup-content h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.popup-content p {
+  margin: 2px 0;
+  font-size: 13px;
+  color: #333;
+}
+
+.popup-address {
+  color: #666 !important;
+}
+
+.popup-total {
+  font-weight: 600;
+  margin-top: 6px !important;
+}
+
+.popup-content .btn-primary {
+  margin-top: 8px;
+}
+
+/* ---- Modal ---- */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 16px;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-box h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.modal-box fieldset {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin: 0 0 12px;
+  padding: 8px 12px 10px;
+}
+
+.modal-box legend {
+  font-weight: 600;
+  padding: 0 4px;
+  font-size: 14px;
+}
+
+.modal-box label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 14px;
+  font-size: 14px;
+}
+
+.field-row {
+  margin-bottom: 12px;
+}
+
+.field-row label.field-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.field-row input[type="text"],
+.field-row textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.field-row textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* honeypot：對真人隱藏，但表單結構上存在，機器人常會自動填入 */
+.honeypot-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
