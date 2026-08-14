@@ -39,12 +39,52 @@
         <a href="index.html" class="btn-secondary">← 回地圖</a>
         <button type="button" id="logout-btn" class="btn-secondary">登出</button>
       </div>
-      <h2>待處理回報</h2>
-      <div id="reports-list"></div>
+
+      <div class="admin-tabs">
+        <button type="button" class="admin-tab active" id="tab-reports-btn" onclick="switchAdminTab('reports')">待處理回報</button>
+        <button type="button" class="admin-tab" id="tab-restaurants-btn" onclick="switchAdminTab('restaurants')">所有店家</button>
+      </div>
+
+      <div id="tab-reports">
+        <div id="reports-list"></div>
+      </div>
+
+      <div id="tab-restaurants" class="hidden">
+        <div class="field-row">
+          <input type="text" id="restaurant-search-input" placeholder="搜尋店名…" />
+        </div>
+        <div id="restaurants-list"></div>
+      </div>
     </section>
   </div>
 
+  <!-- 編輯店家 modal：改店名/地址，以及底下每一筆評論的勾選內容 -->
+  <div class="modal" id="edit-restaurant-modal">
+    <div class="modal-box modal-box-wide">
+      <h2>編輯店家</h2>
+      <form id="edit-restaurant-form">
+        <input type="hidden" name="id" />
+        <div class="field-row">
+          <label class="field-label" for="edit-restaurant-name">店名</label>
+          <input type="text" id="edit-restaurant-name" name="name" required />
+        </div>
+        <div class="field-row">
+          <label class="field-label" for="edit-restaurant-address">地址</label>
+          <input type="text" id="edit-restaurant-address" name="address" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="close-edit-restaurant-modal-btn">關閉</button>
+          <button type="submit" class="btn-primary">儲存店名/地址</button>
+        </div>
+      </form>
+
+      <h3>這家店的評論紀錄</h3>
+      <div id="edit-restaurant-reviews"></div>
+    </div>
+  </div>
+
   <script src="js/config.js"></script>
+  <script src="js/aggregate.js"></script>
   <script src="js/db.js"></script>
   <script src="js/admin.js"></script>
 </body>

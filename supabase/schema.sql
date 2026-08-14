@@ -124,6 +124,10 @@ drop policy if exists "Admins can delete reviews" on reviews;
 create policy "Admins can delete reviews" on reviews
   for delete using (exists (select 1 from admins a where a.user_id = auth.uid()));
 
+drop policy if exists "Admins can update reviews" on reviews;
+create policy "Admins can update reviews" on reviews
+  for update using (exists (select 1 from admins a where a.user_id = auth.uid()));
+
 drop policy if exists "Admins can read reports" on reports;
 create policy "Admins can read reports" on reports
   for select using (exists (select 1 from admins a where a.user_id = auth.uid()));

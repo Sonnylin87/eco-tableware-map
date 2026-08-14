@@ -95,3 +95,46 @@ async function deleteRestaurantAsAdmin(restaurantId) {
   const { error } = await supabaseClient.from('restaurants').delete().eq('id', restaurantId);
   if (error) throw error;
 }
+
+// 抓所有餐廳，連同每筆評論的完整內容（含 id、備註、時間），管理員瀏覽/編輯用。
+// 一般使用者用的 fetchRestaurantsWithReviews 不帶這些，只帶統計要用的欄位。
+async function fetchAllRestaurantsForAdmin() {
+  const reviewFields = CHECKLIST_FIELDS.map((field) => field.key).join(', ');
+  const { data, error } = await supabaseClient
+    .from('restaurants')
+    .select(`id, name, address, lat, lng, reviews(id, notes, created_at, ${reviewFields})`)
+    .order('name', { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+// 抓單一餐廳的完整資料（含每筆評論的 id、備註），編輯視窗開啟時用。
+async function fetchRestaurantForAdmin(restaurantId) {
+  const reviewFields = CHECKLIST_FIELDS.map((field) => field.key).join(', ');
+  const { data, error } = await supabaseClient
+    .from('restaurants')
+    .select(`id, name, address, lat, lng, reviews(id, notes, created_at, ${reviewFields})`)
+    .eq('id', restaurantId)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+async function updateRestaurantAsAdmin(restaurantId, { name, address }) {
+  const { error } = await supabaseClient
+    .from('restaurants')
+    .update({ name, address: address || null })
+    .eq('id', restaurantId);
+  if (error) throw error;
+}
+
+// values 是 { [CHECKLIST_FIELDS 的 key]: 'yes'|'no'|'unknown' } 這種物件。
+async function updateReviewAsAdmin(reviewId, values) {
+  const { error } = await supabaseClient.from('reviews').update(values).eq('id', reviewId);
+  if (error) throw error;
+}
+
+async function deleteReviewAsAdmin(reviewId) {
+  const { error } = await supabaseClient.from('reviews').delete().eq('id', reviewId);
+  if (error) throw error;
+}
