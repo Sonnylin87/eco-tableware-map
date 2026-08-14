@@ -19,8 +19,11 @@
 
   <div class="toolbar">
     <h1>🍱 環保餐具地圖</h1>
+    <button type="button" id="locate-me-btn" class="btn-secondary">📍 定位我</button>
     <button type="button" id="add-restaurant-btn" class="btn-primary">新增店家</button>
   </div>
+
+  <a href="admin.html" class="admin-link">⚙️ 管理</a>
 
   <!-- 「新增店家」選擇視窗：點地圖選位置，或直接輸入地址查詢 -->
   <div class="modal" id="add-restaurant-choice-modal">
@@ -28,8 +31,12 @@
       <h2>新增店家</h2>
       <p>要怎麼標出這家店的位置？</p>
 
-      <button type="button" class="btn-primary" id="choice-pick-on-map-btn" style="width: 100%; margin-bottom: 16px;">
+      <button type="button" class="btn-primary" id="choice-pick-on-map-btn" style="width: 100%; margin-bottom: 10px;">
         📍 在地圖上點選位置
+      </button>
+
+      <button type="button" class="btn-primary" id="choice-use-my-location-btn" style="width: 100%; margin-bottom: 16px;">
+        🧭 使用我目前的位置
       </button>
 
       <div class="field-row">
@@ -43,6 +50,40 @@
       <div class="modal-actions">
         <button type="button" class="btn-secondary" data-close-modal>取消</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 回報問題 modal（資料有誤 / 想刪除店家） -->
+  <div class="modal" id="report-modal">
+    <div class="modal-box">
+      <h2 id="report-modal-title">回報問題</h2>
+      <form id="report-form">
+        <input type="hidden" name="restaurant_id" />
+
+        <!-- honeypot -->
+        <div class="honeypot-field" aria-hidden="true">
+          <label>網站 <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <fieldset>
+          <legend>回報類型</legend>
+          <label><input type="radio" name="report_type" value="wrong_info" required /> 資料有誤</label>
+          <label><input type="radio" name="report_type" value="delete_request" /> 想要刪除這家店</label>
+          <label><input type="radio" name="report_type" value="other" /> 其他</label>
+        </fieldset>
+
+        <div class="field-row">
+          <label class="field-label" for="report-message">留言（選填）</label>
+          <textarea id="report-message" name="message" placeholder="例如：這家店已經歇業了 / 環保杯選項填錯了"></textarea>
+        </div>
+
+        <p class="modal-note">回報只有管理員看得到，不會公開顯示。</p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close-modal>取消</button>
+          <button type="submit" class="btn-primary">送出回報</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -108,12 +149,13 @@
     </div>
   </div>
 
-  <!-- 依相依順序載入：config → aggregate（含 CHECKLIST_FIELDS 定義） → db → geocode → map → ui → app -->
+  <!-- 依相依順序載入：config → aggregate（含 CHECKLIST_FIELDS 定義） → db → geocode → map → geolocate → ui → app -->
   <script src="js/config.js"></script>
   <script src="js/aggregate.js"></script>
   <script src="js/db.js"></script>
   <script src="js/geocode.js"></script>
   <script src="js/map.js"></script>
+  <script src="js/geolocate.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
 </body>

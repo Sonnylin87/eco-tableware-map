@@ -61,6 +61,7 @@ function buildPopupHtml(restaurant, agg) {
         <a class="btn-secondary" href="${googleMapsDirectionsUrl(restaurant)}" target="_blank" rel="noopener noreferrer">🧭 導航</a>
         <button type="button" class="btn-primary" onclick="openReviewModal(${restaurant.id})">填寫評論</button>
       </div>
+      <button type="button" class="popup-report-link" onclick="openReportModal(${restaurant.id})">⚠️ 回報問題</button>
     </div>
   `;
 }
@@ -103,6 +104,49 @@ async function handleReviewFormSubmit(event) {
     restaurant.reviews.push(checklist);
     refreshRestaurantMarker(restaurant);
     closeReviewModal();
+  } catch (err) {
+    console.error(err);
+    alert('送出失敗，請稍後再試一次。');
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+// ---- 回報問題 modal ----
+function openReportModal(restaurantId) {
+  const restaurant = restaurantsById.get(restaurantId);
+  if (!restaurant) return;
+  document.getElementById('report-modal-title').textContent = `回報「${restaurant.name}」的問題`;
+  const form = document.getElementById('report-form');
+  form.reset();
+  form.elements['restaurant_id'].value = restaurantId;
+  document.getElementById('report-modal').classList.add('open');
+}
+
+function closeReportModal() {
+  document.getElementById('report-modal').classList.remove('open');
+}
+
+async function handleReportFormSubmit(event) {
+  event.preventDefault();
+  const form = event.target;
+  if (form.elements['website'].value) return; // honeypot
+
+  const restaurantId = Number(form.elements['restaurant_id'].value);
+  const reportType = form.elements['report_type'].value;
+  const message = form.elements['message'].value.trim();
+
+  if (!reportType) {
+    alert('請選擇回報類型');
+    return;
+  }
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  try {
+    await insertReport({ restaurant_id: restaurantId, report_type: reportType, message });
+    closeReportModal();
+    alert('已送出，謝謝你的回報，管理員會處理。');
   } catch (err) {
     console.error(err);
     alert('送出失敗，請稍後再試一次。');

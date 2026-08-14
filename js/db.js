@@ -34,3 +34,64 @@ async function insertReview(review) {
     .insert([{ ...review, notes: review.notes || null }]);
   if (error) throw error;
 }
+
+// 新增一筆回報（資料有誤 / 想刪除店家 / 其他）。任何人都能送出，
+// 但送出後看不到任何回報內容——只有管理員能讀取，見 admin 專用函式。
+async function insertReport({ restaurant_id, report_type, message }) {
+  const { error } = await supabaseClient
+    .from('reports')
+    .insert([{ restaurant_id, report_type, message: message || null }]);
+  if (error) throw error;
+}
+
+// ============================================================
+// 管理員專用（需要先用 signInAdmin 登入，且帳號要在 admins 名單裡，
+// 否則下面這些查詢會被 RLS 擋掉，回傳空結果或權限錯誤）
+// ============================================================
+
+async function signInAdmin(email, password) {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return data;
+}
+
+async function signOutAdmin() {
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) throw error;
+}
+
+// 回傳目前登入者的 user id，沒登入就回傳 null。
+async function getCurrentUserId() {
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) throw error;
+  return data.session ? data.session.user.id : null;
+}
+
+// 查自己是不是在 admins 名單裡。靠 admins 表的 RLS（只能查自己那一列）
+// 來分辨「登入成功但不是管理員」跟「是管理員」。
+async function checkIsAdmin(userId) {
+  const { data, error } = await supabaseClient.from('admins').select('user_id').eq('user_id', userId).maybeSingle();
+  if (error) throw error;
+  return data !== null;
+}
+
+// 抓所有回報，連同對應的餐廳資訊一起帶出來，未處理的排前面。
+async function fetchReportsWithRestaurant() {
+  const { data, error } = await supabaseClient
+    .from('reports')
+    .select('id, report_type, message, status, created_at, restaurants(id, name, address, lat, lng)')
+    .order('status', { ascending: true }) // 'open' 排在 'resolved' 前面（英文字母序）
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+async function resolveReport(reportId) {
+  const { error } = await supabaseClient.from('reports').update({ status: 'resolved' }).eq('id', reportId);
+  if (error) throw error;
+}
+
+async function deleteRestaurantAsAdmin(restaurantId) {
+  const { error } = await supabaseClient.from('restaurants').delete().eq('id', restaurantId);
+  if (error) throw error;
+}

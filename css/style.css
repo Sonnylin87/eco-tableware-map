@@ -26,7 +26,10 @@ html, body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
+  max-width: calc(100vw - 24px);
 }
 
 .toolbar h1 {
@@ -199,6 +202,8 @@ button {
 }
 
 .field-row input[type="text"],
+.field-row input[type="email"],
+.field-row input[type="password"],
 .field-row textarea {
   width: 100%;
   padding: 8px;
@@ -226,4 +231,141 @@ button {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+.modal-note {
+  font-size: 12px;
+  color: #777;
+  margin: 0 0 12px;
+}
+
+/* popup 裡的「回報問題」：故意做得比主要按鈕低調，避免搶走填寫評論的注意力 */
+.popup-report-link {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  background: none;
+  border: none;
+  padding: 4px;
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.popup-report-link:hover {
+  color: #555;
+}
+
+/* 主頁角落的管理員入口：低調，不特別推廣 */
+.admin-link {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 1000;
+  font-size: 12px;
+  color: #666;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.admin-link:hover {
+  color: #222;
+}
+
+/* ---- 管理員後台頁面 ---- */
+.hidden {
+  display: none !important;
+}
+
+.admin-body {
+  background: #f5f5f5;
+}
+
+.admin-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.admin-page h1 {
+  font-size: 20px;
+}
+
+.admin-page #login-section,
+.admin-page #denied-section {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  max-width: 360px;
+}
+
+.error-text {
+  color: #cf222e;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.report-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #d4a72c;
+}
+
+.report-card.resolved {
+  border-left-color: #8c8c8c;
+  opacity: 0.65;
+}
+
+.report-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.report-status-badge {
+  font-size: 12px;
+  background: #f2f2f2;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #555;
+}
+
+.report-address,
+.report-time {
+  color: #777;
+  font-size: 13px;
+}
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-danger {
+  background: #fff;
+  color: #cf222e;
+  border: 1px solid #cf222e;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.btn-danger:hover {
+  background: #fde8e8;
 }

@@ -60,6 +60,74 @@ drop policy if exists "Public can add reviews" on reviews;
 create policy "Public can add reviews" on reviews
   for insert with check (true);
 
--- 刻意不設 update/delete 政策：
--- RLS 啟用後，沒有對應政策的操作一律被拒絕（包含 anon 和 authenticated），
--- 這樣就沒有人能透過網站竄改或刪除既有資料，防止惡意塗改。
+-- 沒有給 anon（一般訪客）update/delete 政策：
+-- RLS 啟用後，沒有對應政策的操作一律被拒絕，一般人沒辦法透過網站
+-- 竄改或刪除既有資料。下面會另外開放給「管理員」這個身份。
+
+-- ============================================================
+-- 4. 回報（資料有誤 / 想刪除店家）--------------------------------
+-- ============================================================
+create table if not exists reports (
+  id             bigint generated always as identity primary key,
+  restaurant_id  bigint not null references restaurants(id) on delete cascade,
+  report_type    text not null check (report_type in ('wrong_info', 'delete_request', 'other')),
+  message        text,
+  status         text not null default 'open' check (status in ('open', 'resolved')),
+  created_at     timestamptz not null default now()
+);
+
+create index if not exists reports_restaurant_id_idx on reports (restaurant_id);
+create index if not exists reports_status_idx on reports (status);
+
+alter table reports enable row level security;
+
+-- 任何人都能送出回報，但看不到任何回報內容（包括自己送出的）——
+-- 故意不給 anon select 政策，避免被拿來公開洗版特定店家。
+drop policy if exists "Public can add reports" on reports;
+create policy "Public can add reports" on reports
+  for insert with check (true);
+
+-- ============================================================
+-- 5. 管理員名單 --------------------------------------------------
+-- 這張表只記錄「哪些登入帳號是管理員」，不存密碼（密碼由 Supabase
+-- Auth 自己管）。帳號本身要先在 Supabase Dashboard → Authentication
+-- 手動建立，再把該帳號的 user_id 插進這張表，做法見 README.md。
+-- ============================================================
+create table if not exists admins (
+  user_id  uuid primary key references auth.users(id) on delete cascade
+);
+
+alter table admins enable row level security;
+
+-- 只能查自己是不是在名單裡（不能列出全部管理員）。
+-- 這一條政策也是讓下面其他表的 exists(...) 判斷式能正常運作的關鍵：
+-- RLS 政策查別的表時，那張表自己的 RLS 也會生效，如果 admins 表完全不給查，
+-- 判斷式會永遠查不到東西、直接失效。
+drop policy if exists "Users can check own admin status" on admins;
+create policy "Users can check own admin status" on admins
+  for select using (auth.uid() = user_id);
+
+-- ============================================================
+-- 6. 管理員專屬權限 ------------------------------------------------
+-- 讓「登入且在 admins 名單裡」的帳號可以刪改資料，一般訪客（anon）
+-- 完全不受影響，還是只能新增、不能改也不能刪。
+-- ============================================================
+drop policy if exists "Admins can update restaurants" on restaurants;
+create policy "Admins can update restaurants" on restaurants
+  for update using (exists (select 1 from admins a where a.user_id = auth.uid()));
+
+drop policy if exists "Admins can delete restaurants" on restaurants;
+create policy "Admins can delete restaurants" on restaurants
+  for delete using (exists (select 1 from admins a where a.user_id = auth.uid()));
+
+drop policy if exists "Admins can delete reviews" on reviews;
+create policy "Admins can delete reviews" on reviews
+  for delete using (exists (select 1 from admins a where a.user_id = auth.uid()));
+
+drop policy if exists "Admins can read reports" on reports;
+create policy "Admins can read reports" on reports
+  for select using (exists (select 1 from admins a where a.user_id = auth.uid()));
+
+drop policy if exists "Admins can update reports" on reports;
+create policy "Admins can update reports" on reports
+  for update using (exists (select 1 from admins a where a.user_id = auth.uid()));
