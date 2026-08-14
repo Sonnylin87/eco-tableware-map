@@ -47,7 +47,8 @@ function googleMapsDirectionsUrl(restaurant) {
 function buildPopupHtml(restaurant, agg) {
   const statLines = CHECKLIST_FIELDS.map((field) => {
     const stat = agg.byField[field.key];
-    return `<p>${field.label}：${stat.yes} 有 / ${stat.no} 無 / ${stat.unknown} 不確定</p>`;
+    const verdict = getFieldVerdict(stat);
+    return `<p>${field.label}：${verdict.icon} ${verdict.text}</p>`;
   }).join('');
 
   return `
