@@ -22,6 +22,30 @@
     <button type="button" id="add-restaurant-btn" class="btn-primary">新增店家</button>
   </div>
 
+  <!-- 「新增店家」選擇視窗：點地圖選位置，或直接輸入地址查詢 -->
+  <div class="modal" id="add-restaurant-choice-modal">
+    <div class="modal-box">
+      <h2>新增店家</h2>
+      <p>要怎麼標出這家店的位置？</p>
+
+      <button type="button" class="btn-primary" id="choice-pick-on-map-btn" style="width: 100%; margin-bottom: 16px;">
+        📍 在地圖上點選位置
+      </button>
+
+      <div class="field-row">
+        <label class="field-label" for="address-search-input">或直接輸入地址搜尋</label>
+        <form id="address-search-form" style="display: flex; gap: 8px;">
+          <input type="text" id="address-search-input" placeholder="例如：台北市大安區忠孝東路四段1號" style="flex: 1;" />
+          <button type="submit" class="btn-secondary" id="address-search-btn">搜尋</button>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" data-close-modal>取消</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 評論表單 modal -->
   <div class="modal" id="review-modal">
     <div class="modal-box">
@@ -84,10 +108,11 @@
     </div>
   </div>
 
-  <!-- 依相依順序載入：config → aggregate（含 CHECKLIST_FIELDS 定義） → db → map → ui → app -->
+  <!-- 依相依順序載入：config → aggregate（含 CHECKLIST_FIELDS 定義） → db → geocode → map → ui → app -->
   <script src="js/config.js"></script>
   <script src="js/aggregate.js"></script>
   <script src="js/db.js"></script>
+  <script src="js/geocode.js"></script>
   <script src="js/map.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>

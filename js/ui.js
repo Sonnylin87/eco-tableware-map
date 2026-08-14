@@ -113,9 +113,13 @@ async function handleReviewFormSubmit(event) {
 // ---- 新增餐廳 modal ----
 let pendingLatLng = null;
 
-function openNewRestaurantForm(latlng) {
+function openNewRestaurantForm(latlng, prefillAddress) {
   pendingLatLng = latlng;
-  document.getElementById('new-restaurant-form').reset();
+  const form = document.getElementById('new-restaurant-form');
+  form.reset();
+  if (prefillAddress) {
+    form.elements['address'].value = prefillAddress;
+  }
   document.getElementById('new-restaurant-modal').classList.add('open');
 }
 
