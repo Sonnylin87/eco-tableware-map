@@ -34,19 +34,7 @@
           <label>網站 <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
         </div>
 
-        <fieldset>
-          <legend>是否提供環保餐具？</legend>
-          <label><input type="radio" name="reusable_tableware" value="yes" required /> 有提供</label>
-          <label><input type="radio" name="reusable_tableware" value="no" /> 沒有提供</label>
-          <label><input type="radio" name="reusable_tableware" value="unknown" /> 不確定</label>
-        </fieldset>
-
-        <fieldset>
-          <legend>是否提供環保杯？</legend>
-          <label><input type="radio" name="reusable_cup" value="yes" required /> 有提供</label>
-          <label><input type="radio" name="reusable_cup" value="no" /> 沒有提供</label>
-          <label><input type="radio" name="reusable_cup" value="unknown" /> 不確定</label>
-        </fieldset>
+        <div class="checklist-fieldsets"></div>
 
         <div class="field-row">
           <label class="field-label" for="review-notes">備註（選填）</label>
@@ -81,19 +69,7 @@
           <input type="text" id="new-restaurant-address" name="address" />
         </div>
 
-        <fieldset>
-          <legend>是否提供環保餐具？</legend>
-          <label><input type="radio" name="reusable_tableware" value="yes" required /> 有提供</label>
-          <label><input type="radio" name="reusable_tableware" value="no" /> 沒有提供</label>
-          <label><input type="radio" name="reusable_tableware" value="unknown" /> 不確定</label>
-        </fieldset>
-
-        <fieldset>
-          <legend>是否提供環保杯？</legend>
-          <label><input type="radio" name="reusable_cup" value="yes" required /> 有提供</label>
-          <label><input type="radio" name="reusable_cup" value="no" /> 沒有提供</label>
-          <label><input type="radio" name="reusable_cup" value="unknown" /> 不確定</label>
-        </fieldset>
+        <div class="checklist-fieldsets"></div>
 
         <div class="field-row">
           <label class="field-label" for="new-restaurant-notes">備註（選填）</label>
@@ -108,10 +84,10 @@
     </div>
   </div>
 
-  <!-- 依相依順序載入：config → db → aggregate → map → ui → app -->
+  <!-- 依相依順序載入：config → aggregate（含 CHECKLIST_FIELDS 定義） → db → map → ui → app -->
   <script src="js/config.js"></script>
-  <script src="js/db.js"></script>
   <script src="js/aggregate.js"></script>
+  <script src="js/db.js"></script>
   <script src="js/map.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>

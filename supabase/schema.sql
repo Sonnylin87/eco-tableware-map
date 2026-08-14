@@ -19,9 +19,19 @@ create table if not exists reviews (
   restaurant_id       bigint not null references restaurants(id) on delete cascade,
   reusable_tableware  text not null check (reusable_tableware in ('yes', 'no', 'unknown')),
   reusable_cup        text not null check (reusable_cup in ('yes', 'no', 'unknown')),
+  reusable_bowl       text not null default 'unknown' check (reusable_bowl in ('yes', 'no', 'unknown')),
+  reusable_plate      text not null default 'unknown' check (reusable_plate in ('yes', 'no', 'unknown')),
+  provides_straw      text not null default 'unknown' check (provides_straw in ('yes', 'no', 'unknown')),
   notes               text,
   created_at          timestamptz not null default now()
 );
+
+-- 舊專案（第一版就已經跑過這份 schema）不會自動長出新欄位，
+-- 這三行補齊 reusable_bowl / reusable_plate / provides_straw。
+-- 用 if not exists，所以不管是全新專案還是舊專案，重複執行都安全。
+alter table reviews add column if not exists reusable_bowl text not null default 'unknown' check (reusable_bowl in ('yes', 'no', 'unknown'));
+alter table reviews add column if not exists reusable_plate text not null default 'unknown' check (reusable_plate in ('yes', 'no', 'unknown'));
+alter table reviews add column if not exists provides_straw text not null default 'unknown' check (provides_straw in ('yes', 'no', 'unknown'));
 
 -- 加速「抓某餐廳所有評論」的查詢（前端用 embedding 一次抓回來也會用到）
 create index if not exists reviews_restaurant_id_idx on reviews (restaurant_id);

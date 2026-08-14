@@ -1,6 +1,7 @@
 // 進入點：頁面載入完成後，把地圖、資料、表單事件全部串起來。
 
 document.addEventListener('DOMContentLoaded', async () => {
+  renderChecklistFieldsets();
   initMap();
   wireAddRestaurantButton();
   wireModalCloseButtons();

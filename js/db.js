@@ -6,9 +6,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 // 一次把所有餐廳，連同各自的評論一起抓回來（用 PostgREST 的 foreign-key
 // embedding，避免對每間餐廳各發一次「抓評論」的請求）。
 async function fetchRestaurantsWithReviews() {
+  const reviewFields = CHECKLIST_FIELDS.map((field) => field.key).join(', ');
   const { data, error } = await supabaseClient
     .from('restaurants')
-    .select('id, name, address, lat, lng, reviews(reusable_tableware, reusable_cup)');
+    .select(`id, name, address, lat, lng, reviews(${reviewFields})`);
   if (error) throw error;
   return data;
 }
@@ -25,9 +26,11 @@ async function insertRestaurant({ name, address, lat, lng }) {
 }
 
 // 新增一筆評論（表格式勾選）。
-async function insertReview({ restaurant_id, reusable_tableware, reusable_cup, notes }) {
+// review 除了 restaurant_id、notes 之外，要包含 CHECKLIST_FIELDS 裡每一項的值
+// （例如 reusable_tableware、reusable_cup、reusable_bowl、reusable_plate、provides_straw）。
+async function insertReview(review) {
   const { error } = await supabaseClient
     .from('reviews')
-    .insert([{ restaurant_id, reusable_tableware, reusable_cup, notes: notes || null }]);
+    .insert([{ ...review, notes: review.notes || null }]);
   if (error) throw error;
 }

@@ -120,8 +120,18 @@ button {
   margin-top: 6px !important;
 }
 
-.popup-content .btn-primary {
+.popup-actions {
+  display: flex;
+  gap: 8px;
   margin-top: 8px;
+}
+
+.popup-actions .btn-primary,
+.popup-actions .btn-secondary {
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
 }
 
 /* ---- Modal ---- */
