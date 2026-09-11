@@ -19,11 +19,44 @@
 
   <div class="toolbar">
     <h1>🍱 綠色生活餐廳地圖</h1>
+    <button type="button" id="help-btn" class="btn-secondary">❓ 使用說明</button>
     <button type="button" id="locate-me-btn" class="btn-secondary">📍 定位我</button>
     <button type="button" id="add-restaurant-btn" class="btn-primary">新增店家</button>
   </div>
 
   <a href="admin.html" class="admin-link">⚙️ 管理</a>
+
+  <!-- 使用說明 modal -->
+  <div class="modal" id="help-modal">
+    <div class="modal-box">
+      <h2>❓ 這是什麼網站？</h2>
+      <p>這是任何人都能一起維護的地圖：標出提供環保餐具（環保杯／碗／盤／餐具）的餐廳，幫大家減少一次性用品。不需要登入、不需要註冊，人人都能標記、都能留評論。</p>
+
+      <h3>🎨 地圖上的顏色代表什麼</h3>
+      <ul class="help-legend">
+        <li><span class="marker-dot marker-green help-legend-dot"></span> 綠色：多數回報「有提供」</li>
+        <li><span class="marker-dot marker-red help-legend-dot"></span> 紅色：多數回報「沒有提供」</li>
+        <li><span class="marker-dot marker-yellow help-legend-dot"></span> 黃色：意見不一，或多數「不確定」</li>
+        <li><span class="marker-dot marker-gray help-legend-dot"></span> 灰色：還沒有人回報過</li>
+      </ul>
+
+      <h3>📍 查看一家店</h3>
+      <p>點地圖上的圓點，會彈出這家店目前的統計（幾筆評論、各項目的結論），也可以在這裡「填寫評論」或「回報問題」。</p>
+
+      <h3>➕ 新增一家店</h3>
+      <p>點右上角「新增店家」，可以選擇：在地圖上點選位置、使用目前所在位置，或直接輸入地址搜尋。新增時會順便請你勾選環保餐具/杯/碗/盤的提供情形，等於是第一筆評論。</p>
+
+      <h3>✍️ 填寫評論</h3>
+      <p>對一家店的環保餐具/杯/碗/盤提供情形，勾選「有提供／沒有提供／不確定」，可以留備註（例如「需要主動詢問店員」）。同一家店可以有很多人各自留評論，地圖顏色會依全部評論的多數決自動更新。</p>
+
+      <h3>🚩 回報問題</h3>
+      <p>如果店家資料錯誤、或這家店已經歇業想申請下架，可以點「回報問題」留言給管理員，回報內容只有管理員看得到，不會公開顯示。</p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-primary" data-close-modal>我知道了</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 「新增店家」選擇視窗：點地圖選位置，或直接輸入地址查詢 -->
   <div class="modal" id="add-restaurant-choice-modal">

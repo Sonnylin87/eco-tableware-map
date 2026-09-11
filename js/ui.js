@@ -220,6 +220,12 @@ async function handleNewRestaurantFormSubmit(event) {
   }
 }
 
+function wireHelpButton() {
+  document.getElementById('help-btn').addEventListener('click', () => {
+    document.getElementById('help-modal').classList.add('open');
+  });
+}
+
 function wireModalCloseButtons() {
   document.querySelectorAll('[data-close-modal]').forEach((btn) => {
     btn.addEventListener('click', () => {

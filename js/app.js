@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireModalCloseButtons();
   wireLocateButton();
   wireUseMyLocationButton();
+  wireHelpButton();
 
   document.getElementById('review-form').addEventListener('submit', handleReviewFormSubmit);
   document.getElementById('new-restaurant-form').addEventListener('submit', handleNewRestaurantFormSubmit);
