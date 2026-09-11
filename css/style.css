@@ -123,6 +123,36 @@ button {
   margin-top: 6px !important;
 }
 
+.popup-notes {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #eee;
+}
+
+.popup-notes-heading {
+  font-weight: 600 !important;
+  color: #333 !important;
+  margin-bottom: 2px !important;
+}
+
+.popup-notes-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.popup-notes-list li {
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+
+.popup-notes-more {
+  color: #999 !important;
+  font-size: 12px !important;
+  margin-top: 2px !important;
+}
+
 .popup-actions {
   display: flex;
   gap: 8px;

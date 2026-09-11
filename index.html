@@ -47,7 +47,7 @@
       <p>點右上角「新增店家」，可以選擇：在地圖上點選位置、使用目前所在位置，或直接輸入地址搜尋。新增時會順便請你勾選環保餐具/杯/碗/盤的提供情形，等於是第一筆評論。</p>
 
       <h3>✍️ 填寫評論</h3>
-      <p>對一家店的環保餐具/杯/碗/盤提供情形，勾選「有提供／沒有提供／不確定」，可以留備註（例如「需要主動詢問店員」）。同一家店可以有很多人各自留評論，地圖顏色會依全部評論的多數決自動更新。</p>
+      <p>對一家店的環保餐具/杯/碗/盤提供情形，勾選「有提供／沒有提供／不確定」，可以留一句 50 字內的備註（例如「需要主動詢問店員」）——備註會公開顯示在地圖上給其他人看。同一家店可以有很多人各自留評論，地圖顏色會依全部評論的多數決自動更新。</p>
 
       <h3>🚩 回報問題</h3>
       <p>如果店家資料錯誤、或這家店已經歇業想申請下架，可以點「回報問題」留言給管理員，回報內容只有管理員看得到，不會公開顯示。</p>
@@ -136,7 +136,8 @@
 
         <div class="field-row">
           <label class="field-label" for="review-notes">備註（選填）</label>
-          <textarea id="review-notes" name="notes" placeholder="例如：需要主動詢問店員才提供"></textarea>
+          <textarea id="review-notes" name="notes" maxlength="50" placeholder="例如：需要主動詢問店員才提供"></textarea>
+          <p class="modal-note">這則備註會公開顯示給所有人看，最多 50 字。</p>
         </div>
 
         <div class="modal-actions">
@@ -171,7 +172,8 @@
 
         <div class="field-row">
           <label class="field-label" for="new-restaurant-notes">備註（選填）</label>
-          <textarea id="new-restaurant-notes" name="notes"></textarea>
+          <textarea id="new-restaurant-notes" name="notes" maxlength="50" placeholder="例如：有提供環保吸管"></textarea>
+          <p class="modal-note">這則備註會公開顯示給所有人看，最多 50 字。</p>
         </div>
 
         <div class="modal-actions">

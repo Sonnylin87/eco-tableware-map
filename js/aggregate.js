@@ -54,3 +54,23 @@ function getMarkerColor(agg) {
   if (no > yes) return 'red';
   return 'yellow';
 }
+
+// 備註公開顯示功能上線的時間戳：只有這個時間點之後新增的評論備註才會被
+// 公開顯示在地圖 popup 上。這之前累積的舊備註本來就只給管理員看，
+// 上線時決定不追溯公開，維持原樣、只從這之後的新資料開始顯示。
+const NOTES_PUBLIC_SINCE = '2026-09-11T11:58:56Z';
+
+// popup 裡最多顯示幾則備註，超過的用「還有 N 則…」文字帶過，不做展開/分頁互動。
+const NOTES_DISPLAY_LIMIT = 5;
+
+// 從一間餐廳的評論裡，篩出「上線後新增、而且有填備註」的部分，最新的排前面。
+// 回傳 { visible: 最多 NOTES_DISPLAY_LIMIT 則, overflowCount: 篩選後超過顯示上限的則數 }。
+function getVisibleNotes(reviews) {
+  const eligible = (reviews || [])
+    .filter((r) => r.notes && r.notes.trim() && r.created_at && new Date(r.created_at) >= new Date(NOTES_PUBLIC_SINCE))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  return {
+    visible: eligible.slice(0, NOTES_DISPLAY_LIMIT),
+    overflowCount: Math.max(0, eligible.length - NOTES_DISPLAY_LIMIT),
+  };
+}

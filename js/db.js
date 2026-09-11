@@ -7,9 +7,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 // embedding，避免對每間餐廳各發一次「抓評論」的請求）。
 async function fetchRestaurantsWithReviews() {
   const reviewFields = CHECKLIST_FIELDS.map((field) => field.key).join(', ');
+  // notes、created_at 是給地圖 popup 顯示「大家的備註」用的（見 aggregate.js 的 getVisibleNotes）。
   const { data, error } = await supabaseClient
     .from('restaurants')
-    .select(`id, name, address, lat, lng, reviews(${reviewFields})`);
+    .select(`id, name, address, lat, lng, reviews(notes, created_at, ${reviewFields})`);
   if (error) throw error;
   return data;
 }

@@ -51,12 +51,26 @@ function buildPopupHtml(restaurant, agg) {
     return `<p>${field.label}：${verdict.icon} ${verdict.text}</p>`;
   }).join('');
 
+  const notesInfo = getVisibleNotes(restaurant.reviews);
+  const notesHtml = notesInfo.visible.length
+    ? `
+      <div class="popup-notes">
+        <p class="popup-notes-heading">📝 大家的備註</p>
+        <ul class="popup-notes-list">
+          ${notesInfo.visible.map((review) => `<li>${escapeHtml(review.notes)}</li>`).join('')}
+        </ul>
+        ${notesInfo.overflowCount > 0 ? `<p class="popup-notes-more">還有 ${notesInfo.overflowCount} 則…</p>` : ''}
+      </div>
+    `
+    : '';
+
   return `
     <div class="popup-content">
       <h3>${escapeHtml(restaurant.name)}</h3>
       ${restaurant.address ? `<p class="popup-address">${escapeHtml(restaurant.address)}</p>` : ''}
       ${statLines}
       <p class="popup-total">共 ${agg.total} 筆回報</p>
+      ${notesHtml}
       <div class="popup-actions">
         <a class="btn-secondary" href="${googleMapsDirectionsUrl(restaurant)}" target="_blank" rel="noopener noreferrer">🧭 導航</a>
         <button type="button" class="btn-primary" onclick="openReviewModal(${restaurant.id})">填寫評論</button>
@@ -101,7 +115,8 @@ async function handleReviewFormSubmit(event) {
     await insertReview({ restaurant_id: restaurantId, ...checklist, notes });
     const restaurant = restaurantsById.get(restaurantId);
     restaurant.reviews = restaurant.reviews || [];
-    restaurant.reviews.push(checklist);
+    // 帶著 notes/created_at 一起塞進本機快取，這樣剛送出的備註不用重新整理頁面就會出現在 popup 裡。
+    restaurant.reviews.push({ ...checklist, notes, created_at: new Date().toISOString() });
     refreshRestaurantMarker(restaurant);
     closeReviewModal();
   } catch (err) {
@@ -207,7 +222,8 @@ async function handleNewRestaurantFormSubmit(event) {
       lng: pendingLatLng.lng,
     });
     await insertReview({ restaurant_id: restaurant.id, ...checklist, notes });
-    restaurant.reviews = [checklist];
+    // 帶著 notes/created_at 一起塞進本機快取，這樣剛送出的備註不用重新整理頁面就會出現在 popup 裡。
+    restaurant.reviews = [{ ...checklist, notes, created_at: new Date().toISOString() }];
     removeTempMarker();
     renderRestaurantMarker(restaurant);
     document.getElementById('new-restaurant-modal').classList.remove('open');
