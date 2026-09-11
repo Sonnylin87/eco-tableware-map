@@ -357,6 +357,40 @@ button {
   flex-wrap: wrap;
 }
 
+.report-group-heading {
+  font-size: 14px;
+  color: #555;
+  margin: 20px 0 10px;
+}
+
+.report-group-heading:first-child {
+  margin-top: 0;
+}
+
+.report-group-resolved > summary.report-group-heading {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.report-group-resolved > summary.report-group-heading::-webkit-details-marker {
+  display: none;
+}
+
+.report-group-resolved > summary.report-group-heading::before {
+  content: '▶ ';
+  font-size: 11px;
+}
+
+.report-group-resolved[open] > summary.report-group-heading::before {
+  content: '▼ ';
+}
+
+.report-group-empty {
+  color: #999;
+  font-size: 13px;
+}
+
 .btn-danger {
   background: #fff;
   color: #cf222e;

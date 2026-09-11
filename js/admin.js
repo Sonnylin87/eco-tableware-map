@@ -95,7 +95,25 @@ async function loadReports() {
       listEl.innerHTML = '<p>目前沒有任何回報。</p>';
       return;
     }
-    listEl.innerHTML = reports.map(buildReportCardHtml).join('');
+    const openReports = reports.filter((r) => r.status === 'open');
+    const resolvedReports = reports.filter((r) => r.status !== 'open');
+
+    const openHtml = openReports.length
+      ? openReports.map(buildReportCardHtml).join('')
+      : '<p class="report-group-empty">目前沒有待處理的回報。</p>';
+
+    const resolvedHtml = resolvedReports.length
+      ? resolvedReports.map(buildReportCardHtml).join('')
+      : '<p class="report-group-empty">還沒有已處理的回報。</p>';
+
+    listEl.innerHTML = `
+      <h3 class="report-group-heading">待處理（${openReports.length}）</h3>
+      ${openHtml}
+      <details class="report-group-resolved">
+        <summary class="report-group-heading">已處理（${resolvedReports.length}）</summary>
+        ${resolvedHtml}
+      </details>
+    `;
   } catch (err) {
     console.error(err);
     listEl.innerHTML = '<p>載入回報失敗，請重新整理頁面再試一次。</p>';
