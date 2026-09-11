@@ -46,15 +46,12 @@ function refreshRestaurantMarker(restaurant) {
   return marker;
 }
 
-// ---- 「新增店家」：點地圖放置暫時標記，或直接輸入地址 ----
+// ---- 「新增店家」：點地圖放置暫時標記 ----
 let addingRestaurantMode = false;
 let tempMarker = null;
-// 地址查詢查不到座標時，把使用者打過的文字留著，讓他們改點地圖時
-// 不用重新手動打一次地址（地址欄本身是純文字，不需要查得到才能填）。
-let pendingAddressPrefill = null;
 
 // 按下「新增店家」：如果已經在點地圖模式中，再按一次算取消；
-// 否則跳出選擇視窗，讓使用者選「點地圖」或「輸入地址」。
+// 否則跳出選擇視窗，讓使用者選「點地圖」或「使用目前位置」。
 function wireAddRestaurantButton() {
   const btn = document.getElementById('add-restaurant-btn');
   btn.addEventListener('click', () => {
@@ -69,8 +66,6 @@ function wireAddRestaurantButton() {
     document.getElementById('add-restaurant-choice-modal').classList.remove('open');
     enterAddingRestaurantMode();
   });
-
-  document.getElementById('address-search-form').addEventListener('submit', handleAddressSearch);
 }
 
 function enterAddingRestaurantMode() {
@@ -95,48 +90,7 @@ function onMapClickForNewRestaurant(e) {
   exitAddingRestaurantMode();
   removeTempMarker();
   tempMarker = L.marker(e.latlng, { icon: markerIcon('gray') }).addTo(leafletMap);
-  const prefillAddress = pendingAddressPrefill;
-  pendingAddressPrefill = null;
-  openNewRestaurantForm(e.latlng, prefillAddress); // 定義在 ui.js
-}
-
-// 「新增店家」選擇視窗裡的地址輸入框：查到座標後直接接上跟點地圖一樣的流程
-// （放暫時標記、開新增餐廳表單），只是多把查到的地址預先填進表單。
-async function handleAddressSearch(event) {
-  event.preventDefault();
-  const input = document.getElementById('address-search-input');
-  const query = input.value.trim();
-  if (!query) return;
-
-  const btn = document.getElementById('address-search-btn');
-  const originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = '搜尋中…';
-  try {
-    const result = await geocodeAddress(query); // 定義在 geocode.js
-    if (!result) {
-      alert(
-        '這個地址查不到精確位置（台灣不少門牌號碼沒有被地圖資料庫收錄）。\n' +
-          '幫你保留剛剛打的地址，接下來直接在地圖上點一下正確位置就好，不用重打一次地址。'
-      );
-      document.getElementById('add-restaurant-choice-modal').classList.remove('open');
-      pendingAddressPrefill = query;
-      enterAddingRestaurantMode();
-      return;
-    }
-    document.getElementById('add-restaurant-choice-modal').classList.remove('open');
-    input.value = '';
-    leafletMap.setView([result.lat, result.lng], 17);
-    removeTempMarker();
-    tempMarker = L.marker([result.lat, result.lng], { icon: markerIcon('gray') }).addTo(leafletMap);
-    openNewRestaurantForm({ lat: result.lat, lng: result.lng }, query); // 定義在 ui.js
-  } catch (err) {
-    console.error(err);
-    alert('地址查詢失敗，請稍後再試，或改用「在地圖上點選位置」。');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
+  openNewRestaurantForm(e.latlng); // 定義在 ui.js
 }
 
 function removeTempMarker() {

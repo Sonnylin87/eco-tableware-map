@@ -44,7 +44,7 @@
       <p>點地圖上的圓點，會彈出這家店目前的統計（幾筆評論、各項目的結論），也可以在這裡「填寫評論」或「回報問題」。</p>
 
       <h3>➕ 新增一家店</h3>
-      <p>點右上角「新增店家」，可以選擇：在地圖上點選位置、使用目前所在位置，或直接輸入地址搜尋。新增時會順便請你勾選環保餐具/杯/碗/盤的提供情形，等於是第一筆評論。</p>
+      <p>點右上角「新增店家」，可以選擇：在地圖上點選位置，或使用目前所在位置。新增時會順便請你勾選環保餐具/杯/碗/盤的提供情形，等於是第一筆評論。</p>
 
       <h3>✍️ 填寫評論</h3>
       <p>對一家店的環保餐具/杯/碗/盤提供情形，勾選「有提供／沒有提供／不確定」，可以留一句 50 字內的備註（例如「需要主動詢問店員」）——備註會公開顯示在地圖上給其他人看。同一家店可以有很多人各自留評論，地圖顏色會依全部評論的多數決自動更新。</p>
@@ -58,7 +58,7 @@
     </div>
   </div>
 
-  <!-- 「新增店家」選擇視窗：點地圖選位置，或直接輸入地址查詢 -->
+  <!-- 「新增店家」選擇視窗：點地圖選位置，或使用目前位置 -->
   <div class="modal" id="add-restaurant-choice-modal">
     <div class="modal-box">
       <h2>新增店家</h2>
@@ -68,17 +68,9 @@
         📍 在地圖上點選位置
       </button>
 
-      <button type="button" class="btn-primary" id="choice-use-my-location-btn" style="width: 100%; margin-bottom: 16px;">
+      <button type="button" class="btn-primary" id="choice-use-my-location-btn" style="width: 100%;">
         🧭 使用我目前的位置
       </button>
-
-      <div class="field-row">
-        <label class="field-label" for="address-search-input">或直接輸入地址搜尋</label>
-        <form id="address-search-form" style="display: flex; gap: 8px;">
-          <input type="text" id="address-search-input" placeholder="例如：台北市大安區忠孝東路四段1號" style="flex: 1;" />
-          <button type="submit" class="btn-secondary" id="address-search-btn">搜尋</button>
-        </form>
-      </div>
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" data-close-modal>取消</button>
@@ -184,11 +176,10 @@
     </div>
   </div>
 
-  <!-- 依相依順序載入：config → aggregate（含 CHECKLIST_FIELDS 定義） → db → geocode → map → geolocate → ui → app -->
+  <!-- 依相依順序載入：config → aggregate（含 CHECKLIST_FIELDS 定義） → db → map → geolocate → ui → app -->
   <script src="js/config.js"></script>
   <script src="js/aggregate.js"></script>
   <script src="js/db.js"></script>
-  <script src="js/geocode.js"></script>
   <script src="js/map.js"></script>
   <script src="js/geolocate.js"></script>
   <script src="js/ui.js"></script>

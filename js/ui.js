@@ -173,13 +173,10 @@ async function handleReportFormSubmit(event) {
 // ---- 新增餐廳 modal ----
 let pendingLatLng = null;
 
-function openNewRestaurantForm(latlng, prefillAddress) {
+function openNewRestaurantForm(latlng) {
   pendingLatLng = latlng;
   const form = document.getElementById('new-restaurant-form');
   form.reset();
-  if (prefillAddress) {
-    form.elements['address'].value = prefillAddress;
-  }
   document.getElementById('new-restaurant-modal').classList.add('open');
 }
 
