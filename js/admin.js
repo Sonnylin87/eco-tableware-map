@@ -188,8 +188,11 @@ async function loadRestaurants() {
 function renderRestaurantsList() {
   const listEl = document.getElementById('restaurants-list');
   const keyword = document.getElementById('restaurant-search-input').value.trim().toLowerCase();
+  // 同時比對店名跟地址：只記得地址、忘記店名（或反過來）都搜得到。
   const filtered = keyword
-    ? allRestaurantsCache.filter((r) => r.name.toLowerCase().includes(keyword))
+    ? allRestaurantsCache.filter(
+        (r) => r.name.toLowerCase().includes(keyword) || (r.address || '').toLowerCase().includes(keyword)
+      )
     : allRestaurantsCache;
 
   if (filtered.length === 0) {

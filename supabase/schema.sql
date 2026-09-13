@@ -135,3 +135,116 @@ create policy "Admins can read reports" on reports
 drop policy if exists "Admins can update reports" on reports;
 create policy "Admins can update reports" on reports
   for update using (exists (select 1 from admins a where a.user_id = auth.uid()));
+
+-- ============================================================
+-- 7. 基本濫用防護（2026-09-13）
+-- ============================================================
+-- 前端表單有隱藏欄位 honeypot，但那只能擋「乖乖填表單的陽春機器人」——
+-- js/config.js 裡的 anon key 本來就是公開的，任何人都能繞過網站，
+-- 直接打 Supabase 的 REST API 塞資料，honeypot 對這種情況完全沒用。
+-- 這裡補兩層防線：(a) 資料庫層基本欄位檢查 (b) 依來源 IP 的頻率限制。
+
+-- 7a. 欄位長度／座標範圍檢查 -----------------------------------------
+-- 用 `not valid` 是因為專案已經有真實資料在跑，不能保證每一筆舊資料都符合
+-- 新規則——`not valid` 只管接下來的新增/修改，不會去檢查、也不會擋掉既有資料。
+-- 之後想順便驗證舊資料是否也都符合，可以另外執行 `validate constraint`。
+alter table restaurants drop constraint if exists restaurants_name_length_chk;
+alter table restaurants add constraint restaurants_name_length_chk
+  check (char_length(name) between 1 and 100) not valid;
+
+alter table restaurants drop constraint if exists restaurants_address_length_chk;
+alter table restaurants add constraint restaurants_address_length_chk
+  check (address is null or char_length(address) <= 200) not valid;
+
+-- 座標限制在台灣本島＋外島（澎湖／金門／馬祖／綠島／蘭嶼）的合理範圍內，
+-- 擋掉直接打 API 亂填座標（例如 0,0）的情況。範圍刻意留寬鬆一點。
+alter table restaurants drop constraint if exists restaurants_lat_range_chk;
+alter table restaurants add constraint restaurants_lat_range_chk
+  check (lat between 20 and 26.5) not valid;
+
+alter table restaurants drop constraint if exists restaurants_lng_range_chk;
+alter table restaurants add constraint restaurants_lng_range_chk
+  check (lng between 118 and 123.5) not valid;
+
+alter table reviews drop constraint if exists reviews_notes_length_chk;
+alter table reviews add constraint reviews_notes_length_chk
+  check (notes is null or char_length(notes) <= 50) not valid; -- 對齊前端 textarea 的 maxlength="50"
+
+alter table reports drop constraint if exists reports_message_length_chk;
+alter table reports add constraint reports_message_length_chk
+  check (message is null or char_length(message) <= 500) not valid;
+
+-- 7b. 依來源 IP 的頻率限制 --------------------------------------------
+-- 記錄「誰、對哪張表、什麼時候」成功新增過一筆，之後用來判斷是否超過頻率限制。
+-- 這張表故意不開放任何 RLS 政策（啟用 RLS 但沒有 policy = 一律拒絕），
+-- 一般人沒辦法直接讀寫，只能透過下面的 SECURITY DEFINER 函式間接寫入。
+create table if not exists rate_limit_log (
+  id          bigint generated always as identity primary key,
+  table_name  text not null,
+  client_ip   text not null,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists rate_limit_log_lookup_idx on rate_limit_log (table_name, client_ip, created_at);
+
+alter table rate_limit_log enable row level security;
+
+-- 從 PostgREST 請求的 x-forwarded-for 標頭抓出來源 IP。
+-- 這個標頭理論上可以被使用者自己偽造，不是完全可靠的身份依據，
+-- 但足以擋掉大多數「寫腳本狂洗版」的情況，抓不到值時退回 'unknown'
+-- （這種情況下所有抓不到 IP 的請求會共用同一個額度，不會直接掛掉整個功能）。
+create or replace function current_client_ip() returns text
+language sql stable
+set search_path = public, pg_temp
+as $$
+  select coalesce(
+    nullif(split_part(current_setting('request.headers', true)::json ->> 'x-forwarded-for', ',', 1), ''),
+    'unknown'
+  );
+$$;
+
+-- 檢查＋記錄一次新增動作：p_table 這張表、目前這個 IP，在過去
+-- window_minutes 分鐘內已經成功新增超過 max_count 筆，就回傳 false（擋掉這次）；
+-- 沒超過的話記一筆、回傳 true（放行）。用 SECURITY DEFINER 讓這個函式能寫入
+-- rate_limit_log（一般角色被 RLS 擋住寫不進去），呼叫端（anon/authenticated）
+-- 只需要有這個函式的執行權限，不需要也不會拿到 rate_limit_log 本身的存取權。
+create or replace function check_rate_limit(p_table text, max_count int, window_minutes int) returns boolean
+language plpgsql security definer
+set search_path = public, pg_temp
+as $$
+declare
+  recent_count int;
+  ip text := current_client_ip();
+begin
+  select count(*) into recent_count
+  from rate_limit_log
+  where table_name = p_table
+    and client_ip = ip
+    and created_at > now() - (window_minutes || ' minutes')::interval;
+
+  if recent_count >= max_count then
+    return false;
+  end if;
+
+  insert into rate_limit_log (table_name, client_ip) values (p_table, ip);
+  return true;
+end;
+$$;
+
+grant execute on function current_client_ip() to anon, authenticated;
+grant execute on function check_rate_limit(text, int, int) to anon, authenticated;
+
+-- 把頻率限制接進三個公開新增政策：門檻故意設得寬鬆（正常人手動操作不可能碰到），
+-- 只用來擋腳本狂發。同一個 wifi/IP 底下有很多人同時在用網站的話，這幾個數字
+-- 之後可以再調高，不用改程式碼，重新執行這幾行 create policy 即可。
+drop policy if exists "Public can add restaurants" on restaurants;
+create policy "Public can add restaurants" on restaurants
+  for insert with check (check_rate_limit('restaurants', 3, 10));
+
+drop policy if exists "Public can add reviews" on reviews;
+create policy "Public can add reviews" on reviews
+  for insert with check (check_rate_limit('reviews', 10, 10));
+
+drop policy if exists "Public can add reports" on reports;
+create policy "Public can add reports" on reports
+  for insert with check (check_rate_limit('reports', 10, 10));

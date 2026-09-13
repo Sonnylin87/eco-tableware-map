@@ -97,10 +97,8 @@ button {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
-.marker-green { background: #1a7f37; }
-.marker-red { background: #cf222e; }
-.marker-yellow { background: #d4a72c; }
-.marker-gray { background: #8c8c8c; }
+.marker-brand { background: #1a7f37; } /* 所有已收錄餐廳共用同一色，不再依評論結果變色 */
+.marker-gray { background: #8c8c8c; } /* 只用在「新增店家」流程裡還沒送出的暫時標記 */
 
 /* ---- Leaflet popup 內容 ---- */
 .popup-content h3 {
@@ -279,26 +277,6 @@ button {
   font-size: 12px;
   color: #777;
   margin: 0 0 12px;
-}
-
-/* 使用說明 modal 裡的顏色圖例 */
-.help-legend {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 4px;
-  font-size: 14px;
-}
-
-.help-legend li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.help-legend-dot {
-  flex-shrink: 0;
-  box-shadow: none;
 }
 
 /* popup 裡的「回報問題」：故意做得比主要按鈕低調，避免搶走填寫評論的注意力 */

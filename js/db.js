@@ -3,16 +3,41 @@
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 一次把所有餐廳，連同各自的評論一起抓回來（用 PostgREST 的 foreign-key
+// PostgREST（Supabase 的自動 API）單次查詢預設最多回傳 1000 筆，
+// 就算把 Supabase 後台的 Max Rows 設定調高，也只是把門檻往後延，
+// 餐廳數量早晚還是會超過那個數字。真正的解法是分頁：一頁一頁抓，
+// 直到抓到不滿一頁的資料（代表已經是最後一頁）為止，這樣不管
+// 餐廳有幾百還是幾萬筆都能一次抓齊，不用管後台設定是多少。
+const FETCH_PAGE_SIZE = 1000;
+
+// buildQuery 是一個「不帶 .range() 的查詢」建構函式，每一頁都要重新呼叫一次
+// 建出一份新的 query（Supabase 的 query builder 只能用一次，不能重複 await）。
+async function fetchAllPages(buildQuery) {
+  const rows = [];
+  let from = 0;
+  while (true) {
+    const { data, error } = await buildQuery().range(from, from + FETCH_PAGE_SIZE - 1);
+    if (error) throw error;
+    rows.push(...data);
+    if (data.length < FETCH_PAGE_SIZE) break; // 不滿一頁，代表這是最後一頁
+    from += FETCH_PAGE_SIZE;
+  }
+  return rows;
+}
+
+// 把所有餐廳，連同各自的評論一起抓回來（用 PostgREST 的 foreign-key
 // embedding，避免對每間餐廳各發一次「抓評論」的請求）。
+// 依 id 排序只是為了讓分頁時每一頁的範圍是穩定的（不排序的話，Postgres
+// 不保證每次查詢順序一樣，分頁時可能重複或漏抓），跟畫面顯示順序無關。
 async function fetchRestaurantsWithReviews() {
   const reviewFields = CHECKLIST_FIELDS.map((field) => field.key).join(', ');
   // notes、created_at 是給地圖 popup 顯示「大家的備註」用的（見 aggregate.js 的 getVisibleNotes）。
-  const { data, error } = await supabaseClient
-    .from('restaurants')
-    .select(`id, name, address, lat, lng, reviews(notes, created_at, ${reviewFields})`);
-  if (error) throw error;
-  return data;
+  return fetchAllPages(() =>
+    supabaseClient
+      .from('restaurants')
+      .select(`id, name, address, lat, lng, reviews(notes, created_at, ${reviewFields})`)
+      .order('id', { ascending: true })
+  );
 }
 
 // 新增一間餐廳，回傳包含資料庫產生的 id 的完整資料列。
@@ -99,14 +124,18 @@ async function deleteRestaurantAsAdmin(restaurantId) {
 
 // 抓所有餐廳，連同每筆評論的完整內容（含 id、備註、時間），管理員瀏覽/編輯用。
 // 一般使用者用的 fetchRestaurantsWithReviews 不帶這些，只帶統計要用的欄位。
+// 一樣用 fetchAllPages 分頁抓（見上方說明），店名可能重複，多加 id 當第二排序
+// 鍵確保每頁範圍穩定；抓齊之後才依店名排序好交給畫面顯示，跟分頁邏輯脫鉤。
 async function fetchAllRestaurantsForAdmin() {
   const reviewFields = CHECKLIST_FIELDS.map((field) => field.key).join(', ');
-  const { data, error } = await supabaseClient
-    .from('restaurants')
-    .select(`id, name, address, lat, lng, reviews(id, notes, created_at, ${reviewFields})`)
-    .order('name', { ascending: true });
-  if (error) throw error;
-  return data;
+  const rows = await fetchAllPages(() =>
+    supabaseClient
+      .from('restaurants')
+      .select(`id, name, address, lat, lng, reviews(id, notes, created_at, ${reviewFields})`)
+      .order('name', { ascending: true })
+      .order('id', { ascending: true })
+  );
+  return rows;
 }
 
 // 抓單一餐廳的完整資料（含每筆評論的 id、備註），編輯視窗開啟時用。

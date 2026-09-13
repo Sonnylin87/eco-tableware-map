@@ -15,7 +15,10 @@ function initMap() {
   return leafletMap;
 }
 
-function markerIcon(color) {
+// color 預設是所有已收錄餐廳共用的品牌綠（見 css 的 .marker-brand）。
+// 只有「新增店家」流程裡還沒送出的暫時標記會另外傳 'gray'，
+// 標記本身不再依評論結果變色——避免看起來像在幫店家打分數/貼標籤。
+function markerIcon(color = 'brand') {
   return L.divIcon({
     className: '',
     html: `<span class="marker-dot marker-${color}"></span>`,
@@ -28,20 +31,20 @@ function markerIcon(color) {
 function renderRestaurantMarker(restaurant) {
   restaurantsById.set(restaurant.id, restaurant);
   const agg = computeAggregate(restaurant.reviews || []);
-  const marker = L.marker([restaurant.lat, restaurant.lng], { icon: markerIcon(getMarkerColor(agg)) });
+  const marker = L.marker([restaurant.lat, restaurant.lng], { icon: markerIcon() });
   marker.bindPopup(buildPopupHtml(restaurant, agg));
   marker.addTo(leafletMap);
   markersById.set(restaurant.id, marker);
   return marker;
 }
 
-// 送出新評論後呼叫：更新既有標記的顏色與彈出視窗內容，不用整頁重新整理。
+// 送出新評論後呼叫：更新彈出視窗內容，不用整頁重新整理。
+// 標記顏色固定不變，這裡不用再重設 icon。
 function refreshRestaurantMarker(restaurant) {
   restaurantsById.set(restaurant.id, restaurant);
   const agg = computeAggregate(restaurant.reviews || []);
   const marker = markersById.get(restaurant.id);
   if (!marker) return renderRestaurantMarker(restaurant);
-  marker.setIcon(markerIcon(getMarkerColor(agg)));
   marker.setPopupContent(buildPopupHtml(restaurant, agg));
   return marker;
 }
