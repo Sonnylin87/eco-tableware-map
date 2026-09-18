@@ -6,10 +6,10 @@
 // （吸管已移除；資料庫裡的 provides_straw 欄位還在、舊資料不會被刪掉，
 // 只是網站前端不再顯示、不再收集這個項目了。）
 const CHECKLIST_FIELDS = [
-  { key: 'reusable_tableware', label: '環保餐具' },
-  { key: 'reusable_cup', label: '環保杯' },
   { key: 'reusable_bowl', label: '環保碗' },
   { key: 'reusable_plate', label: '環保盤' },
+  { key: 'reusable_tableware', label: '環保餐具' },
+  { key: 'reusable_cup', label: '環保杯' },
 ];
 
 function computeAggregate(reviews) {
