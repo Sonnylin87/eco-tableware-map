@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireLocateButton();
   wireUseMyLocationButton();
   wireHelpButton();
-  document.getElementById('catering-btn').addEventListener('click', openCateringMap);
   wireLangToggleButton();
 
   document.getElementById('review-form').addEventListener('submit', handleReviewFormSubmit);
@@ -35,7 +34,6 @@ function wireLangToggleButton() {
     setLang(nextLang, () => {
       renderChecklistFieldsets();
       restaurantsById.forEach((restaurant) => refreshRestaurantMarker(restaurant));
-      if (cateringMap) updateCateringCount();
     });
   });
 }
@@ -46,11 +44,8 @@ function focusRestaurantFromUrl(restaurants) {
   const focusId = Number(new URLSearchParams(window.location.search).get('focus'));
   if (!focusId) return;
   const restaurant = restaurants.find((r) => r.id === focusId);
-  if (!restaurant) return;
-  // 企業訂餐的店家在另一張地圖上，要先打開那張地圖（第一次打開才會畫出標記）
-  if (mapTypeOf(restaurant) === 'catering') openCateringMap();
   const marker = markersById.get(focusId);
-  if (!marker) return;
-  mapFor(mapTypeOf(restaurant)).setView([restaurant.lat, restaurant.lng], 17);
+  if (!restaurant || !marker) return;
+  leafletMap.setView([restaurant.lat, restaurant.lng], 17);
   marker.openPopup();
 }

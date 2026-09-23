@@ -44,37 +44,6 @@ function googleMapsDirectionsUrl(restaurant) {
   return `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`;
 }
 
-// 訂購連結只接受 http/https 開頭，避免有人直接打 API 塞 javascript: 之類的網址進來。
-function safeOrderUrl(url) {
-  return url && /^https?:\/\//i.test(url) ? url : null;
-}
-
-// 使用者輸入訂購連結時常常省略 https://，這裡幫忙補上；補完還不是合法網址就回傳 null。
-function normalizeOrderUrl(input) {
-  if (!input) return '';
-  const withScheme = /^https?:\/\//i.test(input) ? input : `https://${input}`;
-  try {
-    new URL(withScheme);
-    return withScheme;
-  } catch (err) {
-    return null;
-  }
-}
-
-// 企業訂餐店家的聯絡電話／訂購連結（都是選填，沒填就不顯示）。
-function buildContactHtml(restaurant) {
-  const orderUrl = safeOrderUrl(restaurant.order_url);
-  const lines = [];
-  if (restaurant.phone) {
-    const telHref = restaurant.phone.replace(/[^\d+]/g, '');
-    lines.push(`<p>${escapeHtml(t('popup_phone_label'))}<a href="tel:${escapeHtml(telHref)}">${escapeHtml(restaurant.phone)}</a></p>`);
-  }
-  if (orderUrl) {
-    lines.push(`<p><a href="${escapeHtml(orderUrl)}" target="_blank" rel="noopener noreferrer nofollow">${escapeHtml(t('popup_order_link'))}</a></p>`);
-  }
-  return lines.length ? `<div class="popup-contact">${lines.join('')}</div>` : '';
-}
-
 function buildPopupHtml(restaurant, agg) {
   const statLines = CHECKLIST_FIELDS.map((field) => {
     const stat = agg.byField[field.key];
@@ -104,7 +73,6 @@ function buildPopupHtml(restaurant, agg) {
     <div class="popup-content">
       <h3>${escapeHtml(restaurant.name)}</h3>
       ${restaurant.address ? `<p class="popup-address">${escapeHtml(restaurant.address)}</p>` : ''}
-      ${buildContactHtml(restaurant)}
       ${statLines}
       <p class="popup-total">${escapeHtml(t('popup_total', { count: agg.total }))}</p>
       ${notesHtml}
@@ -210,14 +178,10 @@ async function handleReportFormSubmit(event) {
 // ---- 新增餐廳 modal ----
 let pendingLatLng = null;
 
-// 新增表單兩張地圖共用：企業訂餐（addingMapType === 'catering'，見 map.js）才顯示電話/訂購連結欄位。
 function openNewRestaurantForm(latlng) {
   pendingLatLng = latlng;
   const form = document.getElementById('new-restaurant-form');
   form.reset();
-  const isCatering = addingMapType === 'catering';
-  document.getElementById('catering-only-fields').classList.toggle('hidden', !isCatering);
-  document.getElementById('new-restaurant-title').textContent = t(isCatering ? 'catering_new_title' : 'new_restaurant_title');
   document.getElementById('new-restaurant-modal').classList.add('open');
 }
 
@@ -236,16 +200,9 @@ async function handleNewRestaurantFormSubmit(event) {
   const address = form.elements['address'].value.trim();
   const checklist = readChecklistFromForm(form);
   const notes = form.elements['notes'].value.trim();
-  const isCatering = addingMapType === 'catering';
-  const phone = isCatering ? form.elements['phone'].value.trim() : '';
-  const orderUrl = isCatering ? normalizeOrderUrl(form.elements['order_url'].value.trim()) : '';
 
   if (!name) {
     alert(t('new_restaurant_name_required_alert'));
-    return;
-  }
-  if (orderUrl === null) {
-    alert(t('order_url_invalid_alert'));
     return;
   }
   if (!checklist) {
@@ -265,16 +222,12 @@ async function handleNewRestaurantFormSubmit(event) {
       address,
       lat: pendingLatLng.lat,
       lng: pendingLatLng.lng,
-      map_type: isCatering ? 'catering' : 'eco',
-      phone,
-      order_url: orderUrl,
     });
     await insertReview({ restaurant_id: restaurant.id, ...checklist, notes });
     // 帶著 notes/created_at 一起塞進本機快取，這樣剛送出的備註不用重新整理頁面就會出現在 popup 裡。
     restaurant.reviews = [{ ...checklist, notes, created_at: new Date().toISOString() }];
     removeTempMarker();
     renderRestaurantMarker(restaurant);
-    if (isCatering) updateCateringCount();
     document.getElementById('new-restaurant-modal').classList.remove('open');
     pendingLatLng = null;
   } catch (err) {
@@ -297,8 +250,6 @@ function wireModalCloseButtons() {
       const modal = btn.closest('.modal');
       if (modal.id === 'new-restaurant-modal') {
         cancelNewRestaurantForm();
-      } else if (modal.id === 'catering-modal') {
-        closeCateringMap();
       } else {
         modal.classList.remove('open');
       }

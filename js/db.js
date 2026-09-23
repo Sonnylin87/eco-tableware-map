@@ -35,17 +35,16 @@ async function fetchRestaurantsWithReviews() {
   return fetchAllPages(() =>
     supabaseClient
       .from('restaurants')
-      .select(`id, name, address, lat, lng, map_type, phone, order_url, reviews(notes, created_at, ${reviewFields})`)
+      .select(`id, name, address, lat, lng, reviews(notes, created_at, ${reviewFields})`)
       .order('id', { ascending: true })
   );
 }
 
 // 新增一間餐廳，回傳包含資料庫產生的 id 的完整資料列。
-// map_type：'eco'（主地圖）或 'catering'（企業訂餐地圖）；phone / order_url 只有企業訂餐會填，選填。
-async function insertRestaurant({ name, address, lat, lng, map_type = 'eco', phone, order_url }) {
+async function insertRestaurant({ name, address, lat, lng }) {
   const { data, error } = await supabaseClient
     .from('restaurants')
-    .insert([{ name, address: address || null, lat, lng, map_type, phone: phone || null, order_url: order_url || null }])
+    .insert([{ name, address: address || null, lat, lng }])
     .select()
     .single();
   if (error) throw error;
@@ -132,7 +131,7 @@ async function fetchAllRestaurantsForAdmin() {
   const rows = await fetchAllPages(() =>
     supabaseClient
       .from('restaurants')
-      .select(`id, name, address, lat, lng, map_type, phone, order_url, reviews(id, notes, created_at, ${reviewFields})`)
+      .select(`id, name, address, lat, lng, reviews(id, notes, created_at, ${reviewFields})`)
       .order('name', { ascending: true })
       .order('id', { ascending: true })
   );
@@ -144,17 +143,17 @@ async function fetchRestaurantForAdmin(restaurantId) {
   const reviewFields = CHECKLIST_FIELDS.map((field) => field.key).join(', ');
   const { data, error } = await supabaseClient
     .from('restaurants')
-    .select(`id, name, address, lat, lng, map_type, phone, order_url, reviews(id, notes, created_at, ${reviewFields})`)
+    .select(`id, name, address, lat, lng, reviews(id, notes, created_at, ${reviewFields})`)
     .eq('id', restaurantId)
     .single();
   if (error) throw error;
   return data;
 }
 
-async function updateRestaurantAsAdmin(restaurantId, { name, address, phone, order_url }) {
+async function updateRestaurantAsAdmin(restaurantId, { name, address }) {
   const { error } = await supabaseClient
     .from('restaurants')
-    .update({ name, address: address || null, phone: phone || null, order_url: order_url || null })
+    .update({ name, address: address || null })
     .eq('id', restaurantId);
   if (error) throw error;
 }

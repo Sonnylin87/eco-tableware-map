@@ -7,17 +7,16 @@ let myLocationAccuracyCircle = null;
 
 function removeMyLocationMarker() {
   if (myLocationMarker) {
-    myLocationMarker.remove();
+    leafletMap.removeLayer(myLocationMarker);
     myLocationMarker = null;
   }
   if (myLocationAccuracyCircle) {
-    myLocationAccuracyCircle.remove();
+    leafletMap.removeLayer(myLocationAccuracyCircle);
     myLocationAccuracyCircle = null;
   }
 }
 
-// targetMap：要畫在哪張地圖上（主地圖或企業訂餐地圖），預設主地圖。
-function showMyLocationOnMap(lat, lng, accuracy, targetMap = leafletMap) {
+function showMyLocationOnMap(lat, lng, accuracy) {
   removeMyLocationMarker();
   myLocationMarker = L.circleMarker([lat, lng], {
     radius: 8,
@@ -25,7 +24,7 @@ function showMyLocationOnMap(lat, lng, accuracy, targetMap = leafletMap) {
     weight: 2,
     fillColor: '#1a73e8',
     fillOpacity: 1,
-  }).addTo(targetMap);
+  }).addTo(leafletMap);
   if (accuracy) {
     myLocationAccuracyCircle = L.circle([lat, lng], {
       radius: accuracy,
@@ -33,7 +32,7 @@ function showMyLocationOnMap(lat, lng, accuracy, targetMap = leafletMap) {
       weight: 1,
       fillColor: '#1a73e8',
       fillOpacity: 0.12,
-    }).addTo(targetMap);
+    }).addTo(leafletMap);
   }
 }
 
@@ -98,10 +97,10 @@ function wireUseMyLocationButton() {
       const pos = await getCurrentPosition();
       const { latitude, longitude, accuracy } = pos.coords;
       document.getElementById('add-restaurant-choice-modal').classList.remove('open');
-      const targetMap = mapFor(addingMapType); // 主地圖或企業訂餐地圖，見 map.js
-      targetMap.setView([latitude, longitude], 17);
-      showMyLocationOnMap(latitude, longitude, accuracy, targetMap);
-      placeTempMarker({ lat: latitude, lng: longitude });
+      leafletMap.setView([latitude, longitude], 17);
+      showMyLocationOnMap(latitude, longitude, accuracy);
+      removeTempMarker();
+      tempMarker = L.marker([latitude, longitude], { icon: markerIcon('gray') }).addTo(leafletMap);
       openNewRestaurantForm({ lat: latitude, lng: longitude }); // 定義在 ui.js
     } catch (err) {
       alert(geolocationErrorMessage(err));

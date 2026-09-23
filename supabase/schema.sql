@@ -251,27 +251,3 @@ drop policy if exists "Public can add reports" on reports;
 create policy "Public can add reports" on reports
   for insert with check (check_rate_limit('reports', 10, 10));
 
--- ============================================================
--- 8. 企業訂餐地圖（2026-09-23）
--- ============================================================
--- 店家分兩張地圖：'eco' 是原本的主地圖，'catering' 是另一張獨立的
--- 「企業訂餐地圖」（接大量訂單、附環保餐具的店家）。共用同一張 restaurants 表、
--- 同一套評論/回報/管理員機制，只靠 map_type 分開。既有資料全部預設 'eco'。
-alter table restaurants add column if not exists map_type text not null default 'eco';
-alter table restaurants drop constraint if exists restaurants_map_type_chk;
-alter table restaurants add constraint restaurants_map_type_chk
-  check (map_type in ('eco', 'catering'));
-
--- 企業訂餐店家的聯絡電話／訂購連結，都是選填。
-alter table restaurants add column if not exists phone text;
-alter table restaurants add column if not exists order_url text;
-
-alter table restaurants drop constraint if exists restaurants_phone_length_chk;
-alter table restaurants add constraint restaurants_phone_length_chk
-  check (phone is null or char_length(phone) <= 30) not valid;
-
--- 訂購連結只收 http/https，擋掉 javascript: 之類直接打 API 塞進來的網址
--- （前端顯示時也會再檢查一次，兩層防護）。
-alter table restaurants drop constraint if exists restaurants_order_url_chk;
-alter table restaurants add constraint restaurants_order_url_chk
-  check (order_url is null or (char_length(order_url) <= 300 and order_url ~* '^https?://')) not valid;

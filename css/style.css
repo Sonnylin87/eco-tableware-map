@@ -98,7 +98,6 @@ button {
 }
 
 .marker-brand { background: #1a7f37; } /* 已收錄餐廳的預設色，不依一般評論項目變色 */
-.marker-catering { background: #e8740c; } /* 企業訂餐地圖上的店家 */
 .marker-gray { background: #8c8c8c; } /* 只用在「新增店家」流程裡還沒送出的暫時標記 */
 
 /* ---- Leaflet popup 內容 ---- */
@@ -242,7 +241,6 @@ button {
   font-size: 14px;
 }
 
-.field-row input[type="tel"],
 .field-row input[type="text"],
 .field-row input[type="email"],
 .field-row input[type="password"],
@@ -321,53 +319,6 @@ button {
 
 .corner-link:hover {
   color: #222;
-}
-
-/* ---- 外送地圖 modal ---- */
-.modal-box-map {
-  max-width: 900px;
-  height: 85vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-map-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.modal-map-header h2 {
-  margin: 0;
-}
-
-.modal-map-header-actions {
-  display: flex;
-  gap: 8px;
-}
-
-#catering-add-btn {
-  white-space: nowrap;
-}
-
-#catering-add-btn.active {
-  background: #156a2e;
-}
-
-.modal-box-map .modal-note {
-  margin: 0 0 6px;
-}
-
-.popup-contact p {
-  margin: 2px 0;
-}
-
-#catering-map {
-  flex: 1;
-  min-height: 0;
-  border-radius: 8px;
 }
 
 /* 主頁角落的製作人標示：跟管理員入口同一種低調風格，放對側角落避免擠在一起 */

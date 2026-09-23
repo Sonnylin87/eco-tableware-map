@@ -15,19 +15,6 @@ const translations = {
     page_title: '綠色生活餐廳地圖',
     toolbar_title: '🍱 綠色生活餐廳地圖',
     help_btn: '❓ 使用說明',
-    catering_btn: '🏢 企業訂餐',
-    catering_title: '🏢 企業訂餐地圖',
-    catering_intro: '收錄可以接企業大量訂餐、並附環保餐具的店家。',
-    catering_count: '目前收錄 {{count}} 家店，點橘色圓點看詳細資訊。',
-    catering_empty: '目前還沒有店家，歡迎按「新增店家」標出第一家。',
-    catering_add_btn: '新增店家',
-    catering_new_title: '新增企業訂餐店家',
-    phone_label: '聯絡電話（選填）',
-    order_url_label: '訂購連結（選填）',
-    order_url_invalid_alert: '訂購連結格式不正確，請檢查一下，或留空。',
-    popup_phone_label: '📞 ',
-    popup_order_link: '🔗 訂購連結',
-    close_btn: '關閉',
     locate_btn: '📍 定位我',
     locate_btn_loading: '定位中…',
     add_restaurant_btn: '新增店家',
@@ -37,10 +24,10 @@ const translations = {
 
     help_title: '❓ 這是什麼網站？',
     help_intro:
-      '這是任何人都能一起維護的地圖：標出提供環保餐具（環保杯／碗／盤／餐具）的餐廳，幫大家減少一次性用品；另外還有一張「企業訂餐地圖」，收錄可以接大量訂單、附環保餐具的店家。不需要登入、不需要註冊，人人都能標記、都能留備註。',
+      '這是任何人都能一起維護的地圖：標出提供環保餐具（環保杯／碗／盤／餐具）的餐廳，幫大家減少一次性用品。不需要登入、不需要註冊，人人都能標記、都能留備註。',
     help_view_heading: '🔍 查看一家店',
     help_view_body:
-      '點地圖上的圓點，會彈出這家店目前的統計（各項目的結論、大家留的備註），也可以在這裡按「🧭 導航」開 Google 地圖規劃路線，或「回報問題」。要幫公司訂便當／餐盒，點上方「🏢 企業訂餐」，會開另一張獨立的地圖，可以在那裡查詢、新增、評論接大量訂單又附環保餐具的店家（可附聯絡電話、訂購連結）。',
+      '點地圖上的圓點，會彈出這家店目前的統計（各項目的結論、大家留的備註），也可以在這裡按「🧭 導航」開 Google 地圖規劃路線，或「回報問題」。',
     help_locate_heading: '📍 定位我',
     help_locate_body: '點右上角「定位我」，會用手機/瀏覽器的定位功能，在地圖上用藍色圓點標出你目前的位置。',
     help_add_heading: '➕ 新增一家店',
@@ -97,7 +84,7 @@ const translations = {
     field_reusable_plate: '環保盤',
     field_reusable_tableware: '環保餐具',
     field_reusable_cup: '環保杯',
-    
+
     verdict_none: '尚無回報',
     verdict_tie: '尚無共識',
     verdict_yes: '有提供',
@@ -124,19 +111,6 @@ const translations = {
     page_title: 'Green Living Restaurant Map',
     toolbar_title: '🍱 Green Living Restaurant Map',
     help_btn: '❓ Help',
-    catering_btn: '🏢 Corporate catering',
-    catering_title: '🏢 Corporate Catering Map',
-    catering_intro: 'Places that take large corporate orders and include reusable tableware.',
-    catering_count: '{{count}} place(s) listed. Tap an orange dot for details.',
-    catering_empty: 'No places yet — tap "Add a place" to mark the first one.',
-    catering_add_btn: 'Add a place',
-    catering_new_title: 'Add a catering place',
-    phone_label: 'Phone (optional)',
-    order_url_label: 'Order link (optional)',
-    order_url_invalid_alert: "The order link doesn't look valid. Please check it, or leave it blank.",
-    popup_phone_label: '📞 ',
-    popup_order_link: '🔗 Order link',
-    close_btn: 'Close',
     locate_btn: '📍 Locate me',
     locate_btn_loading: 'Locating…',
     add_restaurant_btn: 'Add a place',
@@ -146,10 +120,10 @@ const translations = {
 
     help_title: '❓ What is this site?',
     help_intro:
-      'A crowdsourced map: it marks restaurants that offer reusable tableware (cups/bowls/plates/utensils) to help everyone cut down on single-use items. There is also a separate Corporate Catering Map for places that take large orders and include reusable tableware. No login or sign-up needed — anyone can add a place or leave a note.',
+      'A crowdsourced map: it marks restaurants that offer reusable tableware (cups/bowls/plates/utensils) to help everyone cut down on single-use items. No login or sign-up needed — anyone can add a place or leave a note.',
     help_view_heading: '🔍 View a place',
     help_view_body:
-      'Tap a dot on the map to see its current stats (the verdict for each item, and notes people left). From there you can also tap "🧭 Directions" to open Google Maps, or "Report an issue". Ordering meals for your company? Tap "🏢 Corporate catering" at the top to open a separate map where you can find, add and review places that take large orders with reusable tableware (with optional phone and order link).',
+      'Tap a dot on the map to see its current stats (the verdict for each item, and notes people left). From there you can also tap "🧭 Directions" to open Google Maps, or "Report an issue".',
     help_locate_heading: '📍 Locate me',
     help_locate_body: 'Tap "Locate me" in the top bar to show your current location on the map as a blue dot, using your phone/browser location feature.',
     help_add_heading: '➕ Add a place',
@@ -206,7 +180,7 @@ const translations = {
     field_reusable_plate: 'reusable plates',
     field_reusable_tableware: 'reusable tableware',
     field_reusable_cup: 'reusable cups',
-    
+
     verdict_none: 'No reports yet',
     verdict_tie: 'No consensus',
     verdict_yes: 'Yes',
