@@ -14,10 +14,10 @@ function renderChecklistFieldsets() {
   const html = CHECKLIST_FIELDS.map(
     (field) => `
       <fieldset>
-        <legend>是否提供${escapeHtml(field.label)}？</legend>
-        <label><input type="radio" name="${field.key}" value="yes" required /> 有提供</label>
-        <label><input type="radio" name="${field.key}" value="no" /> 沒有提供</label>
-        <label><input type="radio" name="${field.key}" value="unknown" /> 不確定</label>
+        <legend>${escapeHtml(t('checklist_legend', { label: t('field_' + field.key) }))}</legend>
+        <label><input type="radio" name="${field.key}" value="yes" required /> ${escapeHtml(t('checklist_yes'))}</label>
+        <label><input type="radio" name="${field.key}" value="no" /> ${escapeHtml(t('checklist_no'))}</label>
+        <label><input type="radio" name="${field.key}" value="unknown" /> ${escapeHtml(t('checklist_unknown'))}</label>
       </fieldset>
     `
   ).join('');
@@ -48,18 +48,23 @@ function buildPopupHtml(restaurant, agg) {
   const statLines = CHECKLIST_FIELDS.map((field) => {
     const stat = agg.byField[field.key];
     const verdict = getFieldVerdict(stat);
-    return `<p>${field.label}：${verdict.icon} ${verdict.text}</p>`;
+    const line = t('stat_line', {
+      label: t('field_' + field.key),
+      icon: verdict.icon,
+      verdict: t('verdict_' + verdict.kind),
+    });
+    return `<p>${line}</p>`;
   }).join('');
 
   const notesInfo = getVisibleNotes(restaurant.reviews);
   const notesHtml = notesInfo.visible.length
     ? `
       <div class="popup-notes">
-        <p class="popup-notes-heading">📝 大家的備註</p>
+        <p class="popup-notes-heading">${escapeHtml(t('popup_notes_heading'))}</p>
         <ul class="popup-notes-list">
           ${notesInfo.visible.map((review) => `<li>${escapeHtml(review.notes)}</li>`).join('')}
         </ul>
-        ${notesInfo.overflowCount > 0 ? `<p class="popup-notes-more">還有 ${notesInfo.overflowCount} 則…</p>` : ''}
+        ${notesInfo.overflowCount > 0 ? `<p class="popup-notes-more">${escapeHtml(t('popup_notes_more', { count: notesInfo.overflowCount }))}</p>` : ''}
       </div>
     `
     : '';
@@ -69,13 +74,13 @@ function buildPopupHtml(restaurant, agg) {
       <h3>${escapeHtml(restaurant.name)}</h3>
       ${restaurant.address ? `<p class="popup-address">${escapeHtml(restaurant.address)}</p>` : ''}
       ${statLines}
-      <p class="popup-total">共 ${agg.total} 筆回報</p>
+      <p class="popup-total">${escapeHtml(t('popup_total', { count: agg.total }))}</p>
       ${notesHtml}
       <div class="popup-actions">
-        <a class="btn-secondary" href="${googleMapsDirectionsUrl(restaurant)}" target="_blank" rel="noopener noreferrer">🧭 導航</a>
-        <button type="button" class="btn-primary" onclick="openReviewModal(${restaurant.id})">填寫評論</button>
+        <a class="btn-secondary" href="${googleMapsDirectionsUrl(restaurant)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('popup_directions_btn'))}</a>
+        <button type="button" class="btn-primary" onclick="openReviewModal(${restaurant.id})">${escapeHtml(t('popup_review_btn'))}</button>
       </div>
-      <button type="button" class="popup-report-link" onclick="openReportModal(${restaurant.id})">⚠️ 回報問題</button>
+      <button type="button" class="popup-report-link" onclick="openReportModal(${restaurant.id})">${escapeHtml(t('popup_report_btn'))}</button>
     </div>
   `;
 }
@@ -84,7 +89,7 @@ function buildPopupHtml(restaurant, agg) {
 function openReviewModal(restaurantId) {
   const restaurant = restaurantsById.get(restaurantId);
   if (!restaurant) return;
-  document.getElementById('review-modal-title').textContent = `為「${restaurant.name}」填寫評論`;
+  document.getElementById('review-modal-title').textContent = t('review_modal_title', { name: restaurant.name });
   const form = document.getElementById('review-form');
   form.reset();
   form.elements['restaurant_id'].value = restaurantId;
@@ -105,7 +110,7 @@ async function handleReviewFormSubmit(event) {
   const notes = form.elements['notes'].value.trim();
 
   if (!checklist) {
-    alert('請把每個項目都選一個選項');
+    alert(t('checklist_required_alert'));
     return;
   }
 
@@ -121,7 +126,7 @@ async function handleReviewFormSubmit(event) {
     closeReviewModal();
   } catch (err) {
     console.error(err);
-    alert('送出失敗，請稍後再試一次。');
+    alert(t('review_submit_failed_alert'));
   } finally {
     submitBtn.disabled = false;
   }
@@ -131,7 +136,7 @@ async function handleReviewFormSubmit(event) {
 function openReportModal(restaurantId) {
   const restaurant = restaurantsById.get(restaurantId);
   if (!restaurant) return;
-  document.getElementById('report-modal-title').textContent = `回報「${restaurant.name}」的問題`;
+  document.getElementById('report-modal-title').textContent = t('report_modal_title', { name: restaurant.name });
   const form = document.getElementById('report-form');
   form.reset();
   form.elements['restaurant_id'].value = restaurantId;
@@ -152,7 +157,7 @@ async function handleReportFormSubmit(event) {
   const message = form.elements['message'].value.trim();
 
   if (!reportType) {
-    alert('請選擇回報類型');
+    alert(t('report_type_required_alert'));
     return;
   }
 
@@ -161,10 +166,10 @@ async function handleReportFormSubmit(event) {
   try {
     await insertReport({ restaurant_id: restaurantId, report_type: reportType, message });
     closeReportModal();
-    alert('已送出，謝謝你的回報，管理員會處理。');
+    alert(t('report_submitted_alert'));
   } catch (err) {
     console.error(err);
-    alert('送出失敗，請稍後再試一次。');
+    alert(t('report_submit_failed_alert'));
   } finally {
     submitBtn.disabled = false;
   }
@@ -197,15 +202,15 @@ async function handleNewRestaurantFormSubmit(event) {
   const notes = form.elements['notes'].value.trim();
 
   if (!name) {
-    alert('請填寫店名');
+    alert(t('new_restaurant_name_required_alert'));
     return;
   }
   if (!checklist) {
-    alert('請把每個項目都選一個選項');
+    alert(t('checklist_required_alert'));
     return;
   }
   if (!pendingLatLng) {
-    alert('請先在地圖上點選位置');
+    alert(t('new_restaurant_location_required_alert'));
     return;
   }
 
@@ -227,7 +232,7 @@ async function handleNewRestaurantFormSubmit(event) {
     pendingLatLng = null;
   } catch (err) {
     console.error(err);
-    alert('新增失敗，請稍後再試一次。');
+    alert(t('new_restaurant_submit_failed_alert'));
   } finally {
     submitBtn.disabled = false;
   }

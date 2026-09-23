@@ -31,9 +31,11 @@ function markerIcon(color = 'brand') {
 }
 
 // 依「可外送」的多數決結果決定標記顏色：有提供外送 → 黃色，其餘情況都用品牌綠。
+// 用語言無關的 kind（見 aggregate.js）判斷，不比對翻譯後的文字，才不會因為切換
+// 語言（中/英文的「有提供」/"Yes" 字串不同）而誤判。
 function markerColorForAggregate(agg) {
   const deliveryStat = agg.byField[DELIVERY_FIELD_KEY];
-  return getFieldVerdict(deliveryStat).text === '有提供' ? 'yellow' : 'brand';
+  return getFieldVerdict(deliveryStat).kind === 'yes' ? 'yellow' : 'brand';
 }
 
 function renderRestaurantMarker(restaurant) {
@@ -84,7 +86,7 @@ function enterAddingRestaurantMode() {
   addingRestaurantMode = true;
   const btn = document.getElementById('add-restaurant-btn');
   btn.classList.add('active');
-  btn.textContent = '請點地圖上任一位置（再按一次取消）';
+  btn.textContent = t('add_restaurant_btn_picking');
   leafletMap.getContainer().style.cursor = 'crosshair';
   leafletMap.once('click', onMapClickForNewRestaurant);
 }
@@ -93,7 +95,7 @@ function exitAddingRestaurantMode() {
   addingRestaurantMode = false;
   const btn = document.getElementById('add-restaurant-btn');
   btn.classList.remove('active');
-  btn.textContent = '新增店家';
+  btn.textContent = t('add_restaurant_btn');
   leafletMap.getContainer().style.cursor = '';
   leafletMap.off('click', onMapClickForNewRestaurant);
 }

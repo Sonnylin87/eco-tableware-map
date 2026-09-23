@@ -52,16 +52,16 @@ function getCurrentPosition() {
 }
 
 function geolocationErrorMessage(err) {
-  if (err.message === 'NOT_SUPPORTED') return '這個瀏覽器不支援定位功能。';
+  if (err.message === 'NOT_SUPPORTED') return t('geo_not_supported');
   switch (err.code) {
     case err.PERMISSION_DENIED:
-      return '沒有取得定位權限，請到瀏覽器設定允許這個網站使用你的位置。';
+      return t('geo_permission_denied');
     case err.POSITION_UNAVAILABLE:
-      return '目前抓不到你的位置，請稍後再試一次。';
+      return t('geo_position_unavailable');
     case err.TIMEOUT:
-      return '定位逾時，請稍後再試一次。';
+      return t('geo_timeout');
     default:
-      return '定位失敗，請稍後再試一次。';
+      return t('geo_generic_error');
   }
 }
 
@@ -70,7 +70,7 @@ function wireLocateButton() {
   btn.addEventListener('click', async () => {
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = '定位中…';
+    btn.textContent = t('locate_btn_loading');
     try {
       const pos = await getCurrentPosition();
       const { latitude, longitude, accuracy } = pos.coords;
@@ -92,7 +92,7 @@ function wireUseMyLocationButton() {
   btn.addEventListener('click', async () => {
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = '定位中…';
+    btn.textContent = t('locate_btn_loading');
     try {
       const pos = await getCurrentPosition();
       const { latitude, longitude, accuracy } = pos.coords;

@@ -33,14 +33,20 @@ function computeAggregate(reviews) {
 
 // 把「有 X / 無 Y / 不確定 Z」的統計濃縮成一句最多票的結論，比列出三個數字好讀。
 // 平手（包含全部都還是 0 票）就顯示「尚無共識」。
+//
+// text/icon 是給不認得 i18n（例如 admin.js，admin.html 沒載入 js/i18n.js）的呼叫端
+// 直接顯示用的固定中文版本；kind 是語言無關的代號（none/tie/yes/no/unknown），
+// 給主站的 ui.js/map.js 用來查 js/i18n.js 的翻譯字典，或做不依賴文字內容的邏輯判斷
+// （例如 map.js 判斷是否要顯示黃色標記）。這個檔案本身刻意不呼叫 t()，
+// 保持不依賴 i18n.js，這樣 admin.html 才能繼續只載入這個檔案、不用跟著載入 i18n.js。
 function getFieldVerdict(stat) {
   const max = Math.max(stat.yes, stat.no, stat.unknown);
-  if (max === 0) return { text: '尚無回報', icon: '❔' };
+  if (max === 0) return { text: '尚無回報', icon: '❔', kind: 'none' };
   const isTie = [stat.yes, stat.no, stat.unknown].filter((count) => count === max).length > 1;
-  if (isTie) return { text: '尚無共識', icon: '❔' };
-  if (stat.yes === max) return { text: '有提供', icon: '✅' };
-  if (stat.no === max) return { text: '沒有提供', icon: '❌' };
-  return { text: '不確定', icon: '❔' };
+  if (isTie) return { text: '尚無共識', icon: '❔', kind: 'tie' };
+  if (stat.yes === max) return { text: '有提供', icon: '✅', kind: 'yes' };
+  if (stat.no === max) return { text: '沒有提供', icon: '❌', kind: 'no' };
+  return { text: '不確定', icon: '❔', kind: 'unknown' };
 }
 
 // 備註公開顯示功能上線的時間戳：只有這個時間點之後新增的評論備註才會被
