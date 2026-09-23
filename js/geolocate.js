@@ -7,16 +7,17 @@ let myLocationAccuracyCircle = null;
 
 function removeMyLocationMarker() {
   if (myLocationMarker) {
-    leafletMap.removeLayer(myLocationMarker);
+    myLocationMarker.remove();
     myLocationMarker = null;
   }
   if (myLocationAccuracyCircle) {
-    leafletMap.removeLayer(myLocationAccuracyCircle);
+    myLocationAccuracyCircle.remove();
     myLocationAccuracyCircle = null;
   }
 }
 
-function showMyLocationOnMap(lat, lng, accuracy) {
+// targetMap：要畫在哪張地圖上（主地圖或企業訂餐地圖），預設主地圖。
+function showMyLocationOnMap(lat, lng, accuracy, targetMap = leafletMap) {
   removeMyLocationMarker();
   myLocationMarker = L.circleMarker([lat, lng], {
     radius: 8,
@@ -24,7 +25,7 @@ function showMyLocationOnMap(lat, lng, accuracy) {
     weight: 2,
     fillColor: '#1a73e8',
     fillOpacity: 1,
-  }).addTo(leafletMap);
+  }).addTo(targetMap);
   if (accuracy) {
     myLocationAccuracyCircle = L.circle([lat, lng], {
       radius: accuracy,
@@ -32,7 +33,7 @@ function showMyLocationOnMap(lat, lng, accuracy) {
       weight: 1,
       fillColor: '#1a73e8',
       fillOpacity: 0.12,
-    }).addTo(leafletMap);
+    }).addTo(targetMap);
   }
 }
 
@@ -97,10 +98,10 @@ function wireUseMyLocationButton() {
       const pos = await getCurrentPosition();
       const { latitude, longitude, accuracy } = pos.coords;
       document.getElementById('add-restaurant-choice-modal').classList.remove('open');
-      leafletMap.setView([latitude, longitude], 17);
-      showMyLocationOnMap(latitude, longitude, accuracy);
-      removeTempMarker();
-      tempMarker = L.marker([latitude, longitude], { icon: markerIcon('gray') }).addTo(leafletMap);
+      const targetMap = mapFor(addingMapType); // 主地圖或企業訂餐地圖，見 map.js
+      targetMap.setView([latitude, longitude], 17);
+      showMyLocationOnMap(latitude, longitude, accuracy, targetMap);
+      placeTempMarker({ lat: latitude, lng: longitude });
       openNewRestaurantForm({ lat: latitude, lng: longitude }); // 定義在 ui.js
     } catch (err) {
       alert(geolocationErrorMessage(err));

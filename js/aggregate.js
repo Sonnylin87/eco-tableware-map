@@ -10,13 +10,9 @@ const CHECKLIST_FIELDS = [
   { key: 'reusable_plate', label: '環保盤' },
   { key: 'reusable_tableware', label: '環保餐具' },
   { key: 'reusable_cup', label: '環保杯' },
-  { key: 'offers_delivery', label: '外送' },
 ];
-
-// 外送這項如果多數決結果是「有提供」，地圖標記要改成黃色（見 map.js 的
-// markerColorForAggregate），跟其他環保用品項目（不影響標記顏色）分開處理，
-// 這個 key 常數集中在這裡，map.js 直接引用，兩邊才不會各自寫一份字串。
-const DELIVERY_FIELD_KEY = 'offers_delivery';
+// （「外送」offers_delivery 2026-09-23 移除：改成另一張獨立的「企業訂餐地圖」，
+// 資料庫欄位跟舊資料都還在，只是前端不再顯示、不再收集。）
 
 function computeAggregate(reviews) {
   const agg = { total: reviews.length, byField: {} };
@@ -37,7 +33,7 @@ function computeAggregate(reviews) {
 // text/icon 是給不認得 i18n（例如 admin.js，admin.html 沒載入 js/i18n.js）的呼叫端
 // 直接顯示用的固定中文版本；kind 是語言無關的代號（none/tie/yes/no/unknown），
 // 給主站的 ui.js/map.js 用來查 js/i18n.js 的翻譯字典，或做不依賴文字內容的邏輯判斷
-// （例如 map.js 判斷是否要顯示黃色標記）。這個檔案本身刻意不呼叫 t()，
+// 。這個檔案本身刻意不呼叫 t()，
 // 保持不依賴 i18n.js，這樣 admin.html 才能繼續只載入這個檔案、不用跟著載入 i18n.js。
 function getFieldVerdict(stat) {
   const max = Math.max(stat.yes, stat.no, stat.unknown);

@@ -72,9 +72,19 @@
           <label class="field-label" for="edit-restaurant-address">地址</label>
           <input type="text" id="edit-restaurant-address" name="address" />
         </div>
+        <div id="edit-catering-fields" class="hidden">
+          <div class="field-row">
+            <label class="field-label" for="edit-restaurant-phone">聯絡電話</label>
+            <input type="tel" id="edit-restaurant-phone" name="phone" maxlength="30" />
+          </div>
+          <div class="field-row">
+            <label class="field-label" for="edit-restaurant-order-url">訂購連結</label>
+            <input type="text" id="edit-restaurant-order-url" name="order_url" maxlength="300" />
+          </div>
+        </div>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="close-edit-restaurant-modal-btn">關閉</button>
-          <button type="submit" class="btn-primary">儲存店名/地址</button>
+          <button type="submit" class="btn-primary">儲存店家資料</button>
         </div>
       </form>
 

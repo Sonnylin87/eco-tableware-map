@@ -20,31 +20,35 @@
   <div class="toolbar">
     <h1 data-i18n="toolbar_title">🍱 綠色生活餐廳地圖</h1>
     <button type="button" id="help-btn" class="btn-secondary" data-i18n="help_btn">❓ 使用說明</button>
+    <button type="button" id="catering-btn" class="btn-secondary" data-i18n="catering_btn">🏢 企業訂餐</button>
     <button type="button" id="locate-me-btn" class="btn-secondary" data-i18n="locate_btn">📍 定位我</button>
     <button type="button" id="add-restaurant-btn" class="btn-primary" data-i18n="add_restaurant_btn">新增店家</button>
-    <button type="button" id="lang-toggle-btn" class="btn-secondary" data-i18n="lang_toggle">EN</button>
   </div>
 
-  <a href="admin.html" class="admin-link" data-i18n="admin_link">⚙️ 管理</a>
+  <!-- 右下角低調入口：語言切換跟管理員入口放在一起 -->
+  <div class="corner-links">
+    <button type="button" id="lang-toggle-btn" class="corner-link" data-i18n="lang_toggle">EN</button>
+    <a href="admin.html" class="corner-link" data-i18n="admin_link">⚙️ 管理</a>
+  </div>
   <div class="credit-line">製作人：林尚謙</div>
 
   <!-- 使用說明 modal -->
   <div class="modal" id="help-modal">
     <div class="modal-box">
       <h2 data-i18n="help_title">❓ 這是什麼網站？</h2>
-      <p data-i18n="help_intro">這是任何人都能一起維護的地圖：標出提供環保餐具（環保杯／碗／盤／餐具）、以及是否可外送的餐廳，幫大家減少一次性用品。不需要登入、不需要註冊，人人都能標記、都能留備註。</p>
+      <p data-i18n="help_intro">這是任何人都能一起維護的地圖：標出提供環保餐具（環保杯／碗／盤／餐具）的餐廳，幫大家減少一次性用品；另外還有一張「企業訂餐地圖」，收錄可以接大量訂單、附環保餐具的店家。不需要登入、不需要註冊，人人都能標記、都能留備註。</p>
 
       <h3 data-i18n="help_view_heading">🔍 查看一家店</h3>
-      <p data-i18n="help_view_body">點地圖上的圓點，會彈出這家店目前的統計（各項目的結論、大家留的備註），也可以在這裡按「🧭 導航」開 Google 地圖規劃路線，或「回報問題」。多數決結果是「可外送」的店家，圓點會顯示黃色，其他店家都是綠色。</p>
+      <p data-i18n="help_view_body">點地圖上的圓點，會彈出這家店目前的統計（各項目的結論、大家留的備註），也可以在這裡按「🧭 導航」開 Google 地圖規劃路線，或「回報問題」。要幫公司訂便當／餐盒，點上方「🏢 企業訂餐」，會開另一張獨立的地圖，可以在那裡查詢、新增、評論接大量訂單又附環保餐具的店家（可附聯絡電話、訂購連結）。</p>
 
       <h3 data-i18n="help_locate_heading">📍 定位我</h3>
       <p data-i18n="help_locate_body">點右上角「定位我」，會用手機/瀏覽器的定位功能，在地圖上用藍色圓點標出你目前的位置。</p>
 
       <h3 data-i18n="help_add_heading">➕ 新增一家店</h3>
-      <p data-i18n="help_add_body">點右上角「新增店家」，可以選擇：在地圖上點選位置，或使用目前所在位置。新增時會順便請你勾選環保餐具/杯/碗/盤、以及是否可外送的情形，地址欄位選填。</p>
+      <p data-i18n="help_add_body">點右上角「新增店家」，可以選擇：在地圖上點選位置，或使用目前所在位置。新增時會順便請你勾選環保餐具/杯/碗/盤的情形，地址欄位選填。</p>
 
       <h3 data-i18n="help_review_heading">✍️ 填寫評論</h3>
-      <p data-i18n="help_review_body">對一家店的環保餐具/杯/碗/盤、可外送情形，勾選「有提供／沒有提供／不確定」，可以留一句 50 字內的備註（例如「需要主動詢問店員」）——備註會公開顯示在地圖上給其他人看。同一家店可以有很多人各自留備註。</p>
+      <p data-i18n="help_review_body">對一家店的環保餐具/杯/碗/盤，勾選「有提供／沒有提供／不確定」，可以留一句 50 字內的備註（例如「需要主動詢問店員」）——備註會公開顯示在地圖上給其他人看。同一家店可以有很多人各自留備註。</p>
 
       <h3 data-i18n="help_report_heading">🚩 回報問題</h3>
       <p data-i18n="help_report_body">如果店家資料錯誤、或這家店已經歇業想申請下架，可以點「回報問題」留言給管理員，回報內容只有管理員看得到，不會公開顯示。</p>
@@ -52,6 +56,24 @@
       <div class="modal-actions">
         <button type="button" class="btn-primary" data-close-modal data-i18n="help_ok_btn">我知道了</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 企業訂餐地圖 modal：另一張獨立的 Leaflet 地圖，店家資料跟主地圖分開（restaurants.map_type = 'catering'），
+       收錄接企業大量訂單、有附環保餐具的店家。放在其他 modal 前面，這樣從這裡打開的
+       新增/評論/回報視窗會疊在它上面。 -->
+  <div class="modal" id="catering-modal">
+    <div class="modal-box modal-box-map">
+      <div class="modal-map-header">
+        <h2 data-i18n="catering_title">🏢 企業訂餐地圖</h2>
+        <div class="modal-map-header-actions">
+          <button type="button" id="catering-add-btn" class="btn-primary" data-i18n="catering_add_btn">新增店家</button>
+          <button type="button" class="btn-secondary" data-close-modal data-i18n="close_btn">關閉</button>
+        </div>
+      </div>
+      <p class="modal-note" data-i18n="catering_intro">收錄可以接企業大量訂餐、並附環保餐具的店家。</p>
+      <p class="modal-note" id="catering-count"></p>
+      <div id="catering-map"></div>
     </div>
   </div>
 
@@ -140,7 +162,7 @@
   <!-- 新增餐廳 modal -->
   <div class="modal" id="new-restaurant-modal">
     <div class="modal-box">
-      <h2 data-i18n="new_restaurant_title">新增店家</h2>
+      <h2 id="new-restaurant-title">新增店家</h2>
       <form id="new-restaurant-form">
         <!-- honeypot -->
         <div class="honeypot-field" aria-hidden="true">
@@ -155,6 +177,18 @@
         <div class="field-row">
           <label class="field-label" for="new-restaurant-address" data-i18n="new_restaurant_address_label">地址（選填）</label>
           <input type="text" id="new-restaurant-address" name="address" />
+        </div>
+
+        <!-- 只有企業訂餐地圖新增店家時才顯示（ui.js openNewRestaurantForm 切換） -->
+        <div id="catering-only-fields" class="hidden">
+          <div class="field-row">
+            <label class="field-label" for="new-restaurant-phone" data-i18n="phone_label">聯絡電話（選填）</label>
+            <input type="tel" id="new-restaurant-phone" name="phone" maxlength="30" />
+          </div>
+          <div class="field-row">
+            <label class="field-label" for="new-restaurant-order-url" data-i18n="order_url_label">訂購連結（選填）</label>
+            <input type="text" id="new-restaurant-order-url" name="order_url" maxlength="300" placeholder="https://" />
+          </div>
         </div>
 
         <div class="checklist-fieldsets"></div>

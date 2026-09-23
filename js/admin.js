@@ -209,10 +209,12 @@ function buildRestaurantCardHtml(restaurant) {
   return `
     <div class="report-card">
       <div class="report-card-header">
-        <strong>${escapeHtmlAdmin(restaurant.name)}</strong>
-        <span class="report-status-badge">共 ${agg.total} 筆評論</span>
+        <strong>${restaurant.map_type === 'catering' ? '🏢 ' : ''}${escapeHtmlAdmin(restaurant.name)}</strong>
+        <span class="report-status-badge">${restaurant.map_type === 'catering' ? '企業訂餐・' : ''}共 ${agg.total} 筆評論</span>
       </div>
       ${restaurant.address ? `<p class="report-address">${escapeHtmlAdmin(restaurant.address)}</p>` : ''}
+      ${restaurant.phone ? `<p class="report-address">📞 ${escapeHtmlAdmin(restaurant.phone)}</p>` : ''}
+      ${restaurant.order_url ? `<p class="report-address">🔗 ${escapeHtmlAdmin(restaurant.order_url)}</p>` : ''}
       <p class="report-time">${statLine}</p>
       <div class="report-actions">
         <a class="btn-secondary" href="index.html?focus=${restaurant.id}" target="_blank" rel="noopener noreferrer">在地圖上看</a>
@@ -235,6 +237,10 @@ async function openEditRestaurantModal(restaurantId) {
     form.elements['id'].value = restaurant.id;
     form.elements['name'].value = restaurant.name;
     form.elements['address'].value = restaurant.address || '';
+    form.elements['phone'].value = restaurant.phone || '';
+    form.elements['order_url'].value = restaurant.order_url || '';
+    // 電話/訂購連結只有企業訂餐地圖的店家才用得到
+    document.getElementById('edit-catering-fields').classList.toggle('hidden', restaurant.map_type !== 'catering');
     renderEditableReviews(restaurant.reviews || []);
   } catch (err) {
     console.error(err);
@@ -252,15 +258,21 @@ async function handleEditRestaurantFormSubmit(event) {
   const id = Number(form.elements['id'].value);
   const name = form.elements['name'].value.trim();
   const address = form.elements['address'].value.trim();
+  const phone = form.elements['phone'].value.trim();
+  const orderUrl = form.elements['order_url'].value.trim();
   if (!name) {
     alert('店名不能空白');
+    return;
+  }
+  if (orderUrl && !/^https?:\/\//i.test(orderUrl)) {
+    alert('訂購連結要以 http:// 或 https:// 開頭');
     return;
   }
 
   const btn = form.querySelector('button[type="submit"]');
   btn.disabled = true;
   try {
-    await updateRestaurantAsAdmin(id, { name, address });
+    await updateRestaurantAsAdmin(id, { name, address, phone, order_url: orderUrl });
     await Promise.all([loadReports(), allRestaurantsCache.length ? loadRestaurants() : Promise.resolve()]);
     alert('已儲存');
   } catch (err) {
