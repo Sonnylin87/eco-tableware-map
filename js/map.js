@@ -16,8 +16,10 @@ function initMap() {
 }
 
 // color 預設是所有已收錄餐廳共用的品牌綠（見 css 的 .marker-brand）。
-// 只有「新增店家」流程裡還沒送出的暫時標記會另外傳 'gray'，
-// 標記本身不再依評論結果變色——避免看起來像在幫店家打分數/貼標籤。
+// 「新增店家」流程裡還沒送出的暫時標記會另外傳 'gray'。
+// 其他評論項目不影響標記顏色（避免看起來像在幫店家打分數/貼標籤），
+// 只有「可外送」這項是例外：多數決結果是「有提供」就顯示黃色，見
+// markerColorForAggregate。
 function markerIcon(color = 'brand') {
   return L.divIcon({
     className: '',
@@ -28,23 +30,30 @@ function markerIcon(color = 'brand') {
   });
 }
 
+// 依「可外送」的多數決結果決定標記顏色：有提供外送 → 黃色，其餘情況都用品牌綠。
+function markerColorForAggregate(agg) {
+  const deliveryStat = agg.byField[DELIVERY_FIELD_KEY];
+  return getFieldVerdict(deliveryStat).text === '有提供' ? 'yellow' : 'brand';
+}
+
 function renderRestaurantMarker(restaurant) {
   restaurantsById.set(restaurant.id, restaurant);
   const agg = computeAggregate(restaurant.reviews || []);
-  const marker = L.marker([restaurant.lat, restaurant.lng], { icon: markerIcon() });
+  const marker = L.marker([restaurant.lat, restaurant.lng], { icon: markerIcon(markerColorForAggregate(agg)) });
   marker.bindPopup(buildPopupHtml(restaurant, agg));
   marker.addTo(leafletMap);
   markersById.set(restaurant.id, marker);
   return marker;
 }
 
-// 送出新評論後呼叫：更新彈出視窗內容，不用整頁重新整理。
-// 標記顏色固定不變，這裡不用再重設 icon。
+// 送出新評論後呼叫：更新彈出視窗內容，同時重新計算標記顏色——
+// 新評論可能剛好讓「可外送」的多數決結果翻盤，所以這裡要重設 icon。
 function refreshRestaurantMarker(restaurant) {
   restaurantsById.set(restaurant.id, restaurant);
   const agg = computeAggregate(restaurant.reviews || []);
   const marker = markersById.get(restaurant.id);
   if (!marker) return renderRestaurantMarker(restaurant);
+  marker.setIcon(markerIcon(markerColorForAggregate(agg)));
   marker.setPopupContent(buildPopupHtml(restaurant, agg));
   return marker;
 }

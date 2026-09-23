@@ -10,7 +10,13 @@ const CHECKLIST_FIELDS = [
   { key: 'reusable_plate', label: '環保盤' },
   { key: 'reusable_tableware', label: '環保餐具' },
   { key: 'reusable_cup', label: '環保杯' },
+  { key: 'offers_delivery', label: '外送' },
 ];
+
+// 外送這項如果多數決結果是「有提供」，地圖標記要改成黃色（見 map.js 的
+// markerColorForAggregate），跟其他環保用品項目（不影響標記顏色）分開處理，
+// 這個 key 常數集中在這裡，map.js 直接引用，兩邊才不會各自寫一份字串。
+const DELIVERY_FIELD_KEY = 'offers_delivery';
 
 function computeAggregate(reviews) {
   const agg = { total: reviews.length, byField: {} };
